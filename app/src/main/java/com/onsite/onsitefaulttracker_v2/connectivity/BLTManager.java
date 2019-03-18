@@ -189,16 +189,11 @@ public class BLTManager {
             public void run() {
                 try {
 
-                    //Bitmap tmpBmp = Bitmap.createBitmap(bmp);
-                    byte[] ascii = header.getBytes(StandardCharsets.US_ASCII);
-
                     ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
-
-                    //int size = (int) f.length();
+                    byte[] ascii = header.getBytes(StandardCharsets.US_ASCII);
                     byte[] prefix;
                     if (photoBytes == null) {
                         String start = "Z:";
-                        //prefix = new byte[0x00];
                         prefix = start.getBytes(StandardCharsets.US_ASCII);
                         headerOut.write(prefix);
                         headerOut.write(ascii);
@@ -209,40 +204,24 @@ public class BLTManager {
                         byte [] photoLength = ByteBuffer.allocate(4).putInt(photoBytes.size()).array();
 
                         Log.i(TAG, "BYTES: " + photoBytes.size());
-                        //reader.read(photo, 0, photo.length);
-                        //reader.close();
                         String start = "P:";
-                        //prefix = new byte[0x00];
                         prefix = start.getBytes(StandardCharsets.US_ASCII);
                         byte[] photo = photoBytes.toByteArray();
 
                         headerOut.write(prefix); //ascii 2bytes
-                        Log.d(TAG, "Size: " + headerOut.size());
+                        //Log.d(TAG, "Size: " + headerOut.size());
                         headerOut.write(messageLength); //int
-                        Log.d(TAG, "Size: " + headerOut.size());
+                        //Log.d(TAG, "Size: " + headerOut.size());
                         headerOut.write(ascii); //ascii
-                        Log.d(TAG, "Size: " + headerOut.size());
+                        //Log.d(TAG, "Size: " + headerOut.size());
                         headerOut.write(photoLength); //int
-                        Log.d(TAG, "Size: " + headerOut.size());
-
-                        int offset = prefix.length + 4 + ascii.length
-                                + 4;
-                        Log.d(TAG, "Offset: " + offset);
-
+                        //Log.d(TAG, "Size: " + headerOut.size());
                         headerOut.write(photo);
-
                         headerOut.writeTo(mSocket.getOutputStream());
-                        //photoBytes.writeTo(mSocket.getOutputStream());
                         photoBytes.close();
-
-
                     }
                     mSocket.getOutputStream().flush();
-
                     headerOut.close();
-
-
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
