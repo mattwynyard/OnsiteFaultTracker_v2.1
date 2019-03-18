@@ -259,7 +259,7 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
                     if (!mDisplayedLowDiskError) {
                         displayLowDiskSpaceError();
                         mDisplayedLowDiskError = true;
-                        BLTManager.sharedInstance().sendMessage("M:LOW DISK SPACE,");
+                        BLTManager.sharedInstance().sendPhoto("M:LOW DISK SPACE,", null);
                     }
 
                     if (currentTime - mLastWarningSoundedTime >= SOUND_WARNING_INTERVAL) {
@@ -323,7 +323,7 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
         stopRecording();
 
         if (BLTManager.sharedInstance().getState() == 3) {
-            BLTManager.sharedInstance().sendMessage("E:CAMERA ERROR,");
+            BLTManager.sharedInstance().sendPhoto("E:CAMERA ERROR,", null);
         } else {
 
             Log.e(TAG, "*******************************************************");
@@ -360,7 +360,7 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
         stopRecording();
 
         if (BLTManager.sharedInstance().getState() == 3) {
-            BLTManager.sharedInstance().sendMessage("M:OUT OF CAMERA SPACE,");
+            BLTManager.sharedInstance().sendPhoto("M:OUT OF CAMERA SPACE,", null);
         } else {
 
             new AlertDialog.Builder(getActivity())
@@ -409,7 +409,7 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
     private void displayLowDiskSpaceError() {
 
         if (BLTManager.sharedInstance().getState() == 3) {
-            BLTManager.sharedInstance().sendMessage("M:LOW CAMERA SPACE,");
+            BLTManager.sharedInstance().sendPhoto("M:LOW CAMERA SPACE,", null);
         } else {
             new AlertDialog.Builder(getActivity())
                     .setTitle(getString(R.string.record_low_disk_space_dialog_title))
@@ -431,7 +431,7 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
     private void displayLowBatteryError() {
 
         if (BLTManager.sharedInstance().getState() == 3) {
-            BLTManager.sharedInstance().sendMessage("B:LOW CAMERA BATTERY,");
+            BLTManager.sharedInstance().sendPhoto("B:LOW CAMERA BATTERY,", null);
         } else {
             new AlertDialog.Builder(getActivity())
                     .setTitle(getString(R.string.record_low_battery_dialog_title))

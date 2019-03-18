@@ -158,20 +158,6 @@ public class BLTManager {
         mBluetoothAdapter.setName(id);
     }
 
-    /**
-//     * Update whether the app is recording or not
-//     *
-//     * @param recording
-//     */
-//    public void setRecording(boolean recording) {
-//        mRecording = recording;
-//        sendRecordingStatus();
-//    }
-
-//    private void sendRecordingStatus() {
-//        sendMessage(mRecording ? "RECORDING," : "NOTRECORDING,");
-//    }
-
     public void sendMessage(final String message) {
 
         ThreadUtil.executeOnNewThread(new Runnable() {
