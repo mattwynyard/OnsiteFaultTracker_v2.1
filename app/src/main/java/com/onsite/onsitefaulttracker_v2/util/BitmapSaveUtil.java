@@ -216,7 +216,6 @@ public class BitmapSaveUtil {
         });
 
         final String message = buildMessage(mMesageDateString, filename, avgSaveTime);
-        //sendMessage(message);
 
         if (availableSpace <= LOW_DISK_SPACE_THRESHOLD) {
             return SaveBitmapResult.SaveLowDiskSpace;
@@ -228,7 +227,6 @@ public class BitmapSaveUtil {
     private void fileComplete(String filename, ByteArrayOutputStream photo) {
         Log.d(TAG, "JPEG written to disk");
         final String message = buildMessage(mMesageDateString, filename, avgSaveTime);
-        //sendMessage(message);
         sendPhoto(message, photo);
     }
 
