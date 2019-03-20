@@ -179,17 +179,17 @@ public class BitmapSaveUtil {
                     rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, CalculationUtil
                             .sharedInstance().estimateQualityValueForImageSize(), fOutputStream);
 
-                    rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, CalculationUtil
-                            .sharedInstance().estimateQualityValueForImageSize(), photo);
+//                    rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, CalculationUtil
+//                            .sharedInstance().estimateQualityValueForImageSize(), photo);
 
-//                    Bitmap resizedBitmap = Bitmap.createScaledBitmap(rotatedBitmap,
-//                            (int)(rotatedBitmap.getWidth() * THUMBNAIL_REDUCTION),
-//                            (int)(rotatedBitmap.getHeight() * THUMBNAIL_REDUCTION), true);
-//                    resizedBitmap.compress(Bitmap.CompressFormat.JPEG, CalculationUtil
-//                            .sharedInstance().estimateQualityValueForImageSize(),
-//                            photo);
+                    Bitmap resizedBitmap = Bitmap.createScaledBitmap(rotatedBitmap,
+                            (int)(rotatedBitmap.getWidth() * THUMBNAIL_REDUCTION),
+                            (int)(rotatedBitmap.getHeight() * THUMBNAIL_REDUCTION), true);
+                    resizedBitmap.compress(Bitmap.CompressFormat.JPEG, CalculationUtil
+                            .sharedInstance().estimateQualityValueForImageSize(),
+                            photo);
                     rotatedBitmap.recycle();
-                    //resizedBitmap.recycle();
+                    resizedBitmap.recycle();
                     bitmapToSave.recycle();
 
                     fOutputStream.flush();

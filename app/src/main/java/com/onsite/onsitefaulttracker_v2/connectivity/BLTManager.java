@@ -198,12 +198,13 @@ public class BLTManager {
                         headerOut.write(prefix);
                         headerOut.write(ascii);
                         //headerOut.write(0x0a);
+                        Log.i(TAG, "Bytes Sent: " + (prefix.length + ascii.length));
                         headerOut.writeTo(mSocket.getOutputStream());
                     } else {
                         byte [] messageLength = ByteBuffer.allocate(4).putInt(ascii.length).array();
                         byte [] photoLength = ByteBuffer.allocate(4).putInt(photoBytes.size()).array();
 
-                        Log.i(TAG, "BYTES: " + photoBytes.size());
+
                         String start = "P:";
                         prefix = start.getBytes(StandardCharsets.US_ASCII);
                         byte[] photo = photoBytes.toByteArray();
@@ -218,6 +219,8 @@ public class BLTManager {
                         //Log.d(TAG, "Size: " + headerOut.size());
                         headerOut.write(photo);
                         headerOut.writeTo(mSocket.getOutputStream());
+                        Log.i(TAG, "Bytes Sent: " + (prefix.length + messageLength.length +
+                                ascii.length + photoLength.length + photo.length));
                         photoBytes.close();
                     }
                     mSocket.getOutputStream().flush();
