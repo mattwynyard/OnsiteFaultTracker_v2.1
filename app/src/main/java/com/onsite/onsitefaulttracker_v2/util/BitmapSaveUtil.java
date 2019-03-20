@@ -151,11 +151,11 @@ public class BitmapSaveUtil {
                     return;
                 }
                 File file = new File(path + "/", filename + ".jpg");
-                File fileResize = new File(path + "/", filename + "_R.jpg");
+                //File fileResize = new File(path + "/", filename + "_R.jpg");
                 try {
                     long start = System.currentTimeMillis();
                     OutputStream fOutputStream = new FileOutputStream(file);
-                    OutputStream fOutputStreamResize = new FileOutputStream(fileResize);
+                    //OutputStream fOutputStreamResize = new FileOutputStream(fileResize);
 
                     float reductionScale = CalculationUtil.sharedInstance()
                             .estimateScaleValueForImageSize();
@@ -178,14 +178,18 @@ public class BitmapSaveUtil {
                     ByteArrayOutputStream photo = new ByteArrayOutputStream();
                     rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, CalculationUtil
                             .sharedInstance().estimateQualityValueForImageSize(), fOutputStream);
-                    Bitmap resizedBitmap = Bitmap.createScaledBitmap(rotatedBitmap,
-                            (int)(rotatedBitmap.getWidth() * THUMBNAIL_REDUCTION),
-                            (int)(rotatedBitmap.getHeight() * THUMBNAIL_REDUCTION), true);
-                    resizedBitmap.compress(Bitmap.CompressFormat.JPEG, CalculationUtil
-                            .sharedInstance().estimateQualityValueForImageSize(),
-                            photo);
+
+                    rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, CalculationUtil
+                            .sharedInstance().estimateQualityValueForImageSize(), photo);
+
+//                    Bitmap resizedBitmap = Bitmap.createScaledBitmap(rotatedBitmap,
+//                            (int)(rotatedBitmap.getWidth() * THUMBNAIL_REDUCTION),
+//                            (int)(rotatedBitmap.getHeight() * THUMBNAIL_REDUCTION), true);
+//                    resizedBitmap.compress(Bitmap.CompressFormat.JPEG, CalculationUtil
+//                            .sharedInstance().estimateQualityValueForImageSize(),
+//                            photo);
                     rotatedBitmap.recycle();
-                    resizedBitmap.recycle();
+                    //resizedBitmap.recycle();
                     bitmapToSave.recycle();
 
                     fOutputStream.flush();
@@ -215,7 +219,7 @@ public class BitmapSaveUtil {
             }
         });
 
-        final String message = buildMessage(mMesageDateString, filename, avgSaveTime);
+        //final String message = buildMessage(mMesageDateString, filename, avgSaveTime);
 
         if (availableSpace <= LOW_DISK_SPACE_THRESHOLD) {
             return SaveBitmapResult.SaveLowDiskSpace;
@@ -230,6 +234,13 @@ public class BitmapSaveUtil {
         sendPhoto(message, photo);
     }
 
+    /**
+     *  Builds a message string using StringBuilder ready for sending through bluetooth
+     * @param dateTime - a date time stamp the photo was taken
+     * @param file - the filename of the photo
+     * @param saveTime - the time taken to prepare the bitmap (testing only)
+     * @return - a string with relevant data ready to be sent through bluetooth
+     */
     private String buildMessage(String dateTime, String file, Double saveTime) {
 
         StringBuilder messageString = new StringBuilder();
@@ -245,6 +256,12 @@ public class BitmapSaveUtil {
         BLTManager.sharedInstance().sendMessage(message);
     }
 
+    /**
+     *  sends a message and photo through bluetooth, see sendPhoto method in BLTManger for the
+     *  actual algorithm for perapring the data
+     * @param message - the message to be sent
+     * @param photo - a byte array containing the photo data
+     */
     private void sendPhoto(final String message, final ByteArrayOutputStream photo) {
         BLTManager.sharedInstance().sendPhoto(message, photo);
     }
