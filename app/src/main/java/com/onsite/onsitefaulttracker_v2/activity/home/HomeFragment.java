@@ -528,7 +528,7 @@ public class HomeFragment extends BaseFragment {
     private void onContinueButtonClicked() {
         if (BLTManager.sharedInstance().getState() == 3) {
             if (!BatteryUtil.sharedInstance().isChargerConnected()) {
-                BLTManager.sharedInstance().sendMessage("B:Not Charging");
+                //BLTManager.sharedInstance().sendMessage("B:Not Charging");
             }
             if (mListener != null) {
                 mListener.onNewRecord();

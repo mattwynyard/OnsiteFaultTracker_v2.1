@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.onsite.onsitefaulttracker_v2.connectivity.BLTManager;
 import com.onsite.onsitefaulttracker_v2.model.Record;
+import com.onsite.onsitefaulttracker.util.ThreadFactoryUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -15,11 +16,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.lang.Thread.MIN_PRIORITY;
+import static java.lang.Thread.NORM_PRIORITY;
 
 /**
  * Created by hihi on 6/21/2016.
@@ -32,13 +42,13 @@ public class BitmapSaveUtil {
     private static final String TAG = BitmapSaveUtil.class.getSimpleName();
 
     // The low disk space threshold
-    private static final long LOW_DISK_SPACE_THRESHOLD = 102400L;
+    private static final long LOW_DISK_SPACE_THRESHOLD = 204800L;
 
     private static final double THUMBNAIL_REDUCTION = 0.25;
 
     private int totalBitMapTime = 0;
     private int totalBitMapCount = 0;
-    private double avgSaveTime = 0;
+    //private double avgSaveTime = 0;
 
     // An enum which has all the SaveBitmapResult values
     public enum SaveBitmapResult {
@@ -51,7 +61,7 @@ public class BitmapSaveUtil {
 
     private Calendar mCal = Calendar.getInstance();
     private TimeZone mTz = mCal.getTimeZone();
-    String mMesageDateString;
+    //String mMesageDateString;
 
     // The format of file names when converted from a date
     private static final String FILE_DATE_FORMAT = "yyMMdd_HHmmss";
@@ -61,6 +71,8 @@ public class BitmapSaveUtil {
 
     // Store the application context for access to storage
     private static Context mContext;
+
+    private ExecutorService mThreadPool;
 
     /**
      * Store the appication context for access to storage
@@ -80,6 +92,11 @@ public class BitmapSaveUtil {
         count = new AtomicInteger(0);
         mCal = Calendar.getInstance();
         mTz = mCal.getTimeZone();
+        ThreadFactoryUtil factory = new ThreadFactoryUtil("message", NORM_PRIORITY);
+        //mThreadPool = Executors.newSingleThreadExecutor(factory);
+        mThreadPool = new ThreadPoolExecutor(1, 1, 5, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>(), factory,
+                new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     /**
@@ -124,7 +141,7 @@ public class BitmapSaveUtil {
         String dateString = simpleDateFormat.format(nowDate);
 
         SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        mMesageDateString = messageDateFormat.format(nowDate);
+        final String mesageDateString = messageDateFormat.format(nowDate);
 
 
         String cameraIdPrefix = SettingsUtil.sharedInstance().getCameraId();
@@ -142,11 +159,11 @@ public class BitmapSaveUtil {
         Bitmap resizedBitmap;
 
         ThreadUtil.executeOnNewThread(new Runnable() {
+        //Runnable task = new Runnable() {
             @Override
             public void run() {
                 String path = RecordUtil.sharedInstance().getPathForRecord(record);
-                File folder = new File(path);
-                if (!folder.exists()) {
+                File folder = new File(path);if (!folder.exists()) {
                     Log.e(TAG, "Error saving snap, Record path does not exist");
                     return;
                 }
@@ -202,9 +219,9 @@ public class BitmapSaveUtil {
                     Log.d(TAG, "Bitmap count: " + totalBitMapCount);
                     totalBitMapTime += (finish - start);
                     Double time = (double)totalBitMapTime / totalBitMapCount;
-                    avgSaveTime = new BigDecimal(time).setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
+                    Double avgSaveTime = new BigDecimal(time).setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
 
-                    fileComplete(filename, photo);
+                    sendMessage(mesageDateString, filename, photo, avgSaveTime);
 
                     Log.d(TAG, "Avergage Photo save time: " + (double)(totalBitMapTime / totalBitMapCount));
 
@@ -218,7 +235,8 @@ public class BitmapSaveUtil {
                 bitmapToSave.recycle();
             }
         });
-
+        //mThreadPool.execute(task);
+        //Log.d(TAG,mThreadPool.toString());
         //final String message = buildMessage(mMesageDateString, filename, avgSaveTime);
 
         if (availableSpace <= LOW_DISK_SPACE_THRESHOLD) {
@@ -228,10 +246,19 @@ public class BitmapSaveUtil {
         }
     }
 
-    private void fileComplete(String filename, ByteArrayOutputStream photo) {
+    public ExecutorService getThreadPool() {
+        return mThreadPool;
+    }
+
+    private void sendMessage(String date, String filename, ByteArrayOutputStream photo, Double saveTime) {
         Log.d(TAG, "JPEG written to disk");
-        final String message = buildMessage(mMesageDateString, filename, avgSaveTime);
-        sendPhoto(message, photo);
+        String message = buildMessage(date, filename, saveTime);
+        MessageUtil.sharedInstance().setMessage(message);
+        MessageUtil.sharedInstance().setPhoto(photo.toByteArray());
+        ByteArrayOutputStream m = MessageUtil.sharedInstance().getMessage();
+        BLTManager.sharedInstance().sendMessge(m);
+
+        //sendPhoto(message, photo);
     }
 
     /**
@@ -252,9 +279,9 @@ public class BitmapSaveUtil {
         return message;
     }
 
-    private void sendMessage(final String message ) {
-        BLTManager.sharedInstance().sendMessage(message);
-    }
+//    private void sendMessage(final String message ) {
+//        BLTManager.sharedInstance().sendMessage(message);
+//    }
 
     /**
      *  sends a message and photo through bluetooth, see sendPhoto method in BLTManger for the

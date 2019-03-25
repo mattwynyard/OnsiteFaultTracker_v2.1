@@ -27,6 +27,7 @@ import com.onsite.onsitefaulttracker_v2.util.BatteryUtil;
 import com.onsite.onsitefaulttracker_v2.util.BitmapSaveUtil;
 import com.onsite.onsitefaulttracker_v2.util.BusNotificationUtil;
 import com.onsite.onsitefaulttracker_v2.util.CameraUtil;
+import com.onsite.onsitefaulttracker_v2.util.MessageUtil;
 import com.onsite.onsitefaulttracker_v2.util.RecordUtil;
 import com.onsite.onsitefaulttracker_v2.util.SettingsUtil;
 import com.onsite.onsitefaulttracker_v2.util.ThreadUtil;
@@ -180,7 +181,8 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
     public void onResume() {
         super.onResume();
         //BLTManager.sharedInstance().sendMessage("RECORDING,");
-        BLTManager.sharedInstance().sendPhoto("RECORDING,", null);
+        //BLTManager.sharedInstance().sendPhoto("RECORDING,", null);
+        MessageUtil.sharedInstance().setRecording("R");
         Log.i(TAG, "RECORD:RESUMED");
         // When the screen is turned off and turned back on, the SurfaceTexture is already
         // available, and "onSurfaceTextureAvailable" will not be called. In that case, we can open
@@ -203,7 +205,8 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
     public void onPause() {
         super.onPause();
         //BLTManager.sharedInstance().sendMessage("NOTRECORDING,");
-        BLTManager.sharedInstance().sendPhoto("NOTRECORDING,", null);
+        //BLTManager.sharedInstance().sendPhoto("NOTRECORDING,", null);
+        MessageUtil.sharedInstance().setRecording("N");
         Log.i(TAG, "RECORD:PAUSED");
         if (mStartedRecordingTime > 0) {
             long recordedTime = new Date().getTime() - mStartedRecordingTime;
@@ -259,7 +262,8 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
                     if (!mDisplayedLowDiskError) {
                         displayLowDiskSpaceError();
                         mDisplayedLowDiskError = true;
-                        BLTManager.sharedInstance().sendPhoto("M:LOW DISK SPACE,", null);
+                        //BLTManager.sharedInstance().sendPhoto("M:LOW DISK SPACE,", null);
+                        //MessageUtil.sharedInstance().setMemory(1);
                     }
 
                     if (currentTime - mLastWarningSoundedTime >= SOUND_WARNING_INTERVAL) {
@@ -268,10 +272,11 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
                         //playWarningSound();
                     }
                 } else {
-                    if (mRecord.photoCount % 60 == 0) {
+                    //if (mRecord.photoCount % 60 == 0) {
                         //BLTManager.sharedInstance().sendMessage("M:OK,");
-                        BLTManager.sharedInstance().sendPhoto("M:OK,", null);
-                    }
+                    MessageUtil.sharedInstance().setError(0);
+                        //BLTManager.sharedInstance().sendPhoto("M:OK,", null);
+                    //}
                 }
                 mRecord.photoCount++;
                 Log.i(TAG, "Photo Count: " + mRecord.photoCount);
@@ -291,7 +296,9 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
                 if (BLTManager.sharedInstance().getState() == 3) { //STATE_CONNECTED
                     int batteryLevel = Math.round(currentBatteryLevel);
                     String msg = "B:" + Integer.toString(batteryLevel) + "%,";
-                    BLTManager.sharedInstance().sendPhoto(msg, null);
+                    //BLTManager.sharedInstance().sendMessage(msg);
+                    MessageUtil.sharedInstance().setBattery(batteryLevel);
+
                 } else {
                     if (currentBatteryLevel <= LOW_BATTERY_ALARM_LEVEL) {
                         if (!mDisplayedLowBatteryError) {
@@ -323,7 +330,8 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
         stopRecording();
 
         if (BLTManager.sharedInstance().getState() == 3) {
-            BLTManager.sharedInstance().sendPhoto("E:CAMERA ERROR,", null);
+            //BLTManager.sharedInstance().sendPhoto("E:CAMERA ERROR,", null);
+            MessageUtil.sharedInstance().setError(3);
         } else {
 
             Log.e(TAG, "*******************************************************");
@@ -360,7 +368,8 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
         stopRecording();
 
         if (BLTManager.sharedInstance().getState() == 3) {
-            BLTManager.sharedInstance().sendPhoto("M:OUT OF CAMERA SPACE,", null);
+            //BLTManager.sharedInstance().sendPhoto("M:OUT OF CAMERA SPACE,", null);
+            MessageUtil.sharedInstance().setError(2);
         } else {
 
             new AlertDialog.Builder(getActivity())
@@ -409,7 +418,8 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
     private void displayLowDiskSpaceError() {
 
         if (BLTManager.sharedInstance().getState() == 3) {
-            BLTManager.sharedInstance().sendPhoto("M:LOW CAMERA SPACE,", null);
+            //BLTManager.sharedInstance().sendPhoto("M:LOW CAMERA SPACE,", null);
+            MessageUtil.sharedInstance().setError(1);
         } else {
             new AlertDialog.Builder(getActivity())
                     .setTitle(getString(R.string.record_low_disk_space_dialog_title))
@@ -431,7 +441,7 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
     private void displayLowBatteryError() {
 
         if (BLTManager.sharedInstance().getState() == 3) {
-            BLTManager.sharedInstance().sendPhoto("B:LOW CAMERA BATTERY,", null);
+            //BLTManager.sharedInstance().sendPhoto("B:LOW CAMERA BATTERY,", null);
         } else {
             new AlertDialog.Builder(getActivity())
                     .setTitle(getString(R.string.record_low_battery_dialog_title))
@@ -467,6 +477,10 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
         }, mIntervalMillis);
     }
 
+    public boolean isRecording() {
+        return mRecording;
+    }
+
     /**
      * Start recording snap shots
      */
@@ -475,6 +489,7 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
             Log.i(TAG, "Start recording called");
             mStartedRecordingTime = new Date().getTime();
             mRecording = true;
+           // MessageUtil.sharedInstance().setRecording(true);
             scheduleNextFrame();
         } else {
             Log.i(TAG, "Start recording called but already recording");
@@ -482,12 +497,14 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
     }
 
     /**
+    /**
      * Stop recording snap shots
      */
     private void stopRecording() {
         if (mRecording) {
             Log.i(TAG, "Stop recording called");
             mRecording = false;
+            //MessageUtil.sharedInstance().setRecording(true);
             //BLTManager.sharedInstance().sendMessage("NOTRECORDING,");
             //BLTManager.sharedInstance().setRecording(false);
             //TcpConnection.getSharedInstance().setRecording(false);
