@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.onsite.onsitefaulttracker_v2.model.notifcation_events.BLTStartRecordingEvent;
 import com.onsite.onsitefaulttracker_v2.model.notifcation_events.BLTStopRecordingEvent;
+import com.onsite.onsitefaulttracker_v2.util.BitmapSaveUtil;
 import com.onsite.onsitefaulttracker_v2.util.BusNotificationUtil;
 import com.onsite.onsitefaulttracker_v2.util.ThreadUtil;
 
@@ -24,6 +25,12 @@ import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class BLTManager {
 
@@ -53,7 +60,12 @@ public class BLTManager {
     public static final int STATE_TIMEOUT = 4;  // now connected to a remote device
     public static final int STATE_NOTENABLED = 9;  // bluetooth not enabled on phone
 
+    private ExecutorService mThreadPool;
+    ReentrantLock lock = new ReentrantLock();
+
     private int mState;    /**
+
+
 
      * initialize the BLTManager class,  to be called once from the application class
      *
@@ -85,6 +97,10 @@ public class BLTManager {
         mApplicationContext = applicationContext;
         setupBluetooth();
         Log.i(TAG, "Bluetooth Setup");
+
+        com.onsite.onsitefaulttracker.util.ThreadFactoryUtil factory = new com.onsite.onsitefaulttracker.util.ThreadFactoryUtil("message");
+
+        mThreadPool = BitmapSaveUtil.sharedInstance().getThreadPool();
     }
 
     private void startBLTConnection() {
@@ -158,35 +174,69 @@ public class BLTManager {
         mBluetoothAdapter.setName(id);
     }
 
-    public void sendMessage(final String message) {
+//    public void sendMessage(final String message) {
+//
+//        //ThreadUtil.executeOnNewThread(new Runnable() {
+//        Runnable task = new Runnable() {
+//            @Override
+//            public void run() {
+//                if (mWriterOut != null) {
+//                    //Log.i(TAG, "ThreadCount: " + Thread.activeCount());
+//                    String newMessage = "Z:" + message;
+//                    byte[] ascii = newMessage.getBytes(StandardCharsets.US_ASCII);
+//                    byte [] messageLength = ByteBuffer.allocate(4).putInt(ascii.length).array();
+//                    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+//
+//                    try {
+//                        byteOut.write(messageLength);
+//                        byteOut.write(ascii);
+//                        lock.lock();
+//                        try {
+//                            byteOut.writeTo(mSocket.getOutputStream());
+//
+//                            mSocket.getOutputStream().flush();
+//                            //byteOut.reset();
+//                            byteOut.close();
+//                        } finally {
+//                            lock.unlock();
+//                        }
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        };
+//        mThreadPool.execute(task);
+//    }
 
-        ThreadUtil.executeOnNewThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mWriterOut != null) {
-                    //Log.i(TAG, "ThreadCount: " + Thread.activeCount());
-                    byte[] ascii = message.getBytes(StandardCharsets.US_ASCII);
-                    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-                    try {
-                        byteOut.write(ascii);
-                        byteOut.write(0x0a); //newline
-                        //Log.i(TAG, "PAYLOAD: " + byteOut.size());
-                        byteOut.writeTo(mSocket.getOutputStream());
-                        mSocket.getOutputStream().flush();
-                        //byteOut.reset();
-                        byteOut.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
+    public void sendMessge(final ByteArrayOutputStream bytes) {
+        try {
+            bytes.writeTo(mSocket.getOutputStream());
+            mSocket.getOutputStream().flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
+    public void sendMessge(final String message) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        byte[] messageBytes = message.getBytes(StandardCharsets.US_ASCII);
+
+        try {
+            bytes.write(messageBytes);
+            bytes.writeTo(mSocket.getOutputStream());
+            mSocket.getOutputStream().flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
         public void sendPhoto(final String header, final ByteArrayOutputStream photoBytes) {
-        ThreadUtil.executeOnNewThread(new Runnable() {
-            @Override
-            public void run() {
+            //Runnable task = new Runnable() {
+        //ThreadUtil.executeOnNewThread(new Runnable() {
+            //@Override
+            //public void run() {
                 try {
 
                     ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
@@ -203,8 +253,6 @@ public class BLTManager {
                     } else {
                         byte [] messageLength = ByteBuffer.allocate(4).putInt(ascii.length).array();
                         byte [] photoLength = ByteBuffer.allocate(4).putInt(photoBytes.size()).array();
-
-
                         String start = "P:";
                         prefix = start.getBytes(StandardCharsets.US_ASCII);
                         byte[] photo = photoBytes.toByteArray();
@@ -218,18 +266,27 @@ public class BLTManager {
                         headerOut.write(photoLength); //int
                         //Log.d(TAG, "Size: " + headerOut.size());
                         headerOut.write(photo);
-                        headerOut.writeTo(mSocket.getOutputStream());
-                        Log.i(TAG, "Bytes Sent: " + (prefix.length + messageLength.length +
-                                ascii.length + photoLength.length + photo.length));
-                        photoBytes.close();
+
+                        lock.lock();
+                        try {
+                            headerOut.writeTo(mSocket.getOutputStream());
+                            Log.i(TAG, "Bytes Sent: " + (prefix.length + messageLength.length +
+                                    ascii.length + photoLength.length + photo.length));
+
+                            mSocket.getOutputStream().flush();
+                            headerOut.close();
+                            photoBytes.close();
+                        } finally {
+                            lock.unlock();
+                        }
+
                     }
-                    mSocket.getOutputStream().flush();
-                    headerOut.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }
-        });
+            //}
+        //});
+        //mThreadPool.execute(task);
     }
 
     /**
@@ -290,12 +347,11 @@ public class BLTManager {
                     BusNotificationUtil.sharedInstance().postNotification(new BLTConnectedNotification());
                     try {
                         mWriterOut = new PrintWriter(mSocket.getOutputStream(), true);
-                        sendPhoto("CONNECTED,", null);
+                        //sendPhoto("CONNECTED,", null);
+                        sendMessge("CONNECTED,");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
-
                     mReadThread = new Thread(readFromClient);
                     mReadThread.setName("ReadThread");
                     mReadThread.setPriority(MAX_PRIORITY);
