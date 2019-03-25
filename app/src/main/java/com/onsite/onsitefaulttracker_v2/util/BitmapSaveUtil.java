@@ -255,6 +255,9 @@ public class BitmapSaveUtil {
         String message = buildMessage(date, filename, saveTime);
         MessageUtil.sharedInstance().setMessage(message);
         MessageUtil.sharedInstance().setPhoto(photo.toByteArray());
+        int messageLength = MessageUtil.sharedInstance().getMessageLength();
+        int payload = messageLength + 21 + photo.size();
+        MessageUtil.sharedInstance().setPayload(payload);
         ByteArrayOutputStream m = MessageUtil.sharedInstance().getMessage();
         BLTManager.sharedInstance().sendMessge(m);
 

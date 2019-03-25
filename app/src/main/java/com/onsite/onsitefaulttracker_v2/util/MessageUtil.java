@@ -22,6 +22,7 @@ public class MessageUtil {
     private byte[] message;
     private byte[] photoLength;
     private byte[] photo;
+    private byte[] payload;
 
     public static void initialize(final Context context) {
         sMessageUtil = new MessageUtil(context);
@@ -70,22 +71,42 @@ public class MessageUtil {
 
     }
 
+    public int getMessageLength() {
+        return message.length;
+    }
+
+    public int getPhotoLength() {
+        return photo.length;
+    }
 
     public void setPhoto(byte[] photo) {
-        this.photo = photo;
-        this.photoLength = ByteBuffer.allocate(4).putInt(photo.length).array();
+        if (photo == null) {
+            this.photo = null;
+            this.photoLength = ByteBuffer.allocate(4).putInt(0).array();
+        } else {
+            this.photo = photo;
+            this.photoLength = ByteBuffer.allocate(4).putInt(photo.length).array();
+        }
+
+    }
+
+    public void setPayload(int payload) {
+        this.payload = ByteBuffer.allocate(4).putInt(payload).array();
     }
 
     public ByteArrayOutputStream getMessage() {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            out.write(recording);
-            out.write(battery);
-            out.write(error);
-            out.write(messageLength);
+            out.write(payload);
+            out.write(messageLength); //4 bytes
+            out.write(photoLength); //4 bytes
+            out.write(recording); //2 bytes
+            out.write(battery); //4 bytes
+            out.write(error); //4 bytes
             out.write(message);
-            out.write(photoLength);
-            out.write(photo);
+            if (photo != null) {
+                out.write(photo);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

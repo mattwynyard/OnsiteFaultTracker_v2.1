@@ -8,8 +8,10 @@ import android.util.Log;
 
 import com.onsite.onsitefaulttracker_v2.model.notifcation_events.BLTStartRecordingEvent;
 import com.onsite.onsitefaulttracker_v2.model.notifcation_events.BLTStopRecordingEvent;
+import com.onsite.onsitefaulttracker_v2.util.BatteryUtil;
 import com.onsite.onsitefaulttracker_v2.util.BitmapSaveUtil;
 import com.onsite.onsitefaulttracker_v2.util.BusNotificationUtil;
+import com.onsite.onsitefaulttracker_v2.util.MessageUtil;
 import com.onsite.onsitefaulttracker_v2.util.ThreadUtil;
 
 //import com.onsite.onsitefaulttracker.model.notifcation_events.BLTStartRecordingEvent;
@@ -220,10 +222,24 @@ public class BLTManager {
 
     public void sendMessge(final String message) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        byte[] messageBytes = message.getBytes(StandardCharsets.US_ASCII);
+        //byte[] messageBytes = message.getBytes(StandardCharsets.US_ASCII);
+        float currentBatteryLevel = BatteryUtil.sharedInstance().getBatteryLevel();
+        int batteryLevel = Math.round(currentBatteryLevel);
+
+        MessageUtil.sharedInstance().setRecording("N");
+        MessageUtil.sharedInstance().setBattery(batteryLevel);
+        MessageUtil.sharedInstance().setError(0);
+        MessageUtil.sharedInstance().setMessage(message);
+        MessageUtil.sharedInstance().setPhoto(null);
+        int messageLength = MessageUtil.sharedInstance().getMessageLength();
+        //int photoLength = 0;
+        int payload = messageLength + 21;
+        MessageUtil.sharedInstance().setPayload(payload);
+        bytes = MessageUtil.sharedInstance().getMessage();
+
 
         try {
-            bytes.write(messageBytes);
+            //bytes.write(messageBytes);
             bytes.writeTo(mSocket.getOutputStream());
             mSocket.getOutputStream().flush();
         } catch (IOException e) {
@@ -347,7 +363,7 @@ public class BLTManager {
                     BusNotificationUtil.sharedInstance().postNotification(new BLTConnectedNotification());
                     try {
                         mWriterOut = new PrintWriter(mSocket.getOutputStream(), true);
-                        //sendPhoto("CONNECTED,", null);
+
                         sendMessge("CONNECTED,");
                     } catch (IOException e) {
                         e.printStackTrace();
