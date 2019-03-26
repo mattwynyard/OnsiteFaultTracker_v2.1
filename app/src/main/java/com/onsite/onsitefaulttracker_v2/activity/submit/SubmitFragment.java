@@ -221,7 +221,7 @@ public class SubmitFragment extends BaseFragment {
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat(OUT_RECORD_DATE_FORMAT);
         final String dateString = dateFormat.format(mRecord.creationDate);
-        final String outPath = RecordUtil.sharedInstance().getBaseFolder().getAbsolutePath() + "/onsite_record_" + dateString +  ".zip";
+        final String outPath = RecordUtil.sharedInstance().getBaseFolder(true).getAbsolutePath() + "/onsite_record_" + dateString +  ".zip";
 
         mSubmittingProgressBar.setVisibility(View.VISIBLE);
         mSubmitButton.setEnabled(false);
