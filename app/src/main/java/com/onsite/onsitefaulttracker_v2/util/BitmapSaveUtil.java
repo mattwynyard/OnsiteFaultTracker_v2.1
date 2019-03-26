@@ -260,8 +260,6 @@ public class BitmapSaveUtil {
         MessageUtil.sharedInstance().setPayload(payload);
         ByteArrayOutputStream m = MessageUtil.sharedInstance().getMessage();
         BLTManager.sharedInstance().sendMessge(m);
-
-        //sendPhoto(message, photo);
     }
 
     /**
