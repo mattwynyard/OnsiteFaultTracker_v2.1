@@ -306,10 +306,11 @@ public class HomeFragment extends BaseFragment {
      */
     //TODO Temp hack should be moved to BLTManager
     public void startAdvertising() {
-        if (BLTManager.sharedInstance().isBluetoothEnabled()) {
+        if (BLTManager.sharedInstance().isBluetoothEnabled() && !mAdvertising) {
             Intent discoverableIntent =
                     new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
             discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, BT_TIMEOUT);
+            discoverableIntent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
             startActivityForResult(discoverableIntent, REQUEST_ENABLE_DISCOVERY);
         } else {
             Log.i(TAG, "Bluetooth Not Enabled");

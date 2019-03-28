@@ -220,6 +220,7 @@ public class BitmapSaveUtil {
                     totalBitMapTime += (finish - start);
                     Double time = (double)totalBitMapTime / totalBitMapCount;
                     Double avgSaveTime = new BigDecimal(time).setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
+                    photo.size();
 
                     sendMessage(mesageDateString, filename, photo, avgSaveTime);
 

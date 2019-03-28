@@ -32,7 +32,7 @@ import java.text.SimpleDateFormat;
  * The Submit Fragment, The default fragment of submit Activity.
  * Here the user can submit their record and upload it to drop box
  */
-public class SubmitFragment extends BaseFragment {
+public class SubmitFragment extends BaseFragment implements Compressor.CompressorListener{
 
     // The tag name for this fragment
     private static final String TAG = SubmitFragment.class.getSimpleName();
@@ -80,6 +80,9 @@ public class SubmitFragment extends BaseFragment {
     // Array of record files to be uploaded
     private File[] mRecordFiles;
 
+    // Array of record files to be uploaded
+    private String[] mFileNames;
+
     // Is this fragment currently resumed?
     boolean mResumed;
 
@@ -88,6 +91,13 @@ public class SubmitFragment extends BaseFragment {
 
     // Index of the next image to display
     int mDisplayImageIndex;
+
+    private long totalBytesCompressed = 0;
+
+    private long totalSizeKB = 0;
+    private long totalBytes = 0;
+
+
 
     /**
      * On create view, Override this in each extending fragment to implement initialization for that
@@ -125,6 +135,11 @@ public class SubmitFragment extends BaseFragment {
             mRecordSubmittedTextView = (TextView) view.findViewById(R.id.record_submitted_text_view);
 
             mRecord = RecordUtil.sharedInstance().getRecordWithId(mRecordId);
+//            mFileNames = new String[mRecordFiles.length];
+//            for (int i = 0; i < mRecordFiles.length; i++) {
+//                totalBytes += mRecordFiles[i].length();
+//                mFileNames[i] = mRecordFiles[i].getAbsolutePath();
+//            }
 
             updateUIValues();
         }
@@ -153,12 +168,13 @@ public class SubmitFragment extends BaseFragment {
      * Update the ui with the record details
      */
     private void updateUIValues() {
+        mRecord.totalSizeKB = (totalBytes) /1024;
         mNameTextView.setText(mRecord.recordName);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy, h:mm a");
         mDateTextView.setText(String.format(getString(R.string.submit_created_date), simpleDateFormat.format(mRecord.creationDate)));
         mTotalSizeTextView.setText(String.format(getString(R.string.submit_total_size), CalculationUtil.sharedInstance().getDisplayValueFromKB(mRecord.totalSizeKB)));
-        final long remainingKB = mRecord.totalSizeKB - mRecord.uploadedSizeKB;
-        mRemainingTextView.setText(String.format(getString(R.string.submit_remaining_size), CalculationUtil.sharedInstance().getDisplayValueFromKB(Math.max(remainingKB, 0))));
+        //final long remainingKB = mRecord.totalSizeKB - mRecord.uploadedSizeKB;
+        //mRemainingTextView.setText(String.format(getString(R.string.submit_remaining_size), CalculationUtil.sharedInstance().getDisplayValueFromKB(Math.max(remainingKB, 0))));
         float percentage = ((float)mRecord.uploadedSizeKB / (float)mRecord.totalSizeKB) * 100.0f;
         percentage = Math.min(100.0f, percentage);
         mPercentageTextView.setText(String.format("%.0f%%", percentage));
@@ -196,6 +212,8 @@ public class SubmitFragment extends BaseFragment {
      * Action when submitting a record has completed
      */
     private void onSubmissionComplete() {
+        mRemainingTextView.setText(String.format(getString(R.string.submit_remaining_size),
+                CalculationUtil.sharedInstance().getDisplayValueFromKB(Math.max(0, 0))));
         mPercentageTextView.setVisibility(View.INVISIBLE);
         mRecordSubmittedTextView.setVisibility(View.VISIBLE);
         mSubmittingProgressBar.setVisibility(View.INVISIBLE);
@@ -217,11 +235,15 @@ public class SubmitFragment extends BaseFragment {
 
         final String fileNames[] = new String[mRecordFiles.length];
         for (int i = 0; i < mRecordFiles.length; i++) {
+            totalBytes += mRecordFiles[i].length();
             fileNames[i] = mRecordFiles[i].getAbsolutePath();
         }
+        updateUIValues();
         SimpleDateFormat dateFormat = new SimpleDateFormat(OUT_RECORD_DATE_FORMAT);
         final String dateString = dateFormat.format(mRecord.creationDate);
         final String outPath = RecordUtil.sharedInstance().getBaseFolder().getAbsolutePath() + "/onsite_record_" + dateString +  ".zip";
+        final Compressor compressor = new Compressor(fileNames, outPath);
+        compressor.setCompressorListener(this);
 
         mSubmittingProgressBar.setVisibility(View.VISIBLE);
         mSubmitButton.setEnabled(false);
@@ -229,7 +251,7 @@ public class SubmitFragment extends BaseFragment {
             @Override
             public void run() {
                 Log.i(TAG, "START ZIP");
-                Compressor compressor = new Compressor(fileNames, outPath);
+                //Compressor compressor = new Compressor(fileNames, outPath);
                 compressor.zip();
                 Log.i(TAG, "END ZIP");
                 ThreadUtil.executeOnMainThread(new Runnable() {
@@ -250,6 +272,11 @@ public class SubmitFragment extends BaseFragment {
                     ThreadUtil.executeOnMainThread(new Runnable() {
                         @Override
                         public void run() {
+
+                            long remainingKB = (totalBytes / 1024)
+                                    - (totalBytesCompressed / 1024);
+                            mRemainingTextView.setText(String.format(getString(R.string.submit_remaining_size),
+                                    CalculationUtil.sharedInstance().getDisplayValueFromKB(Math.max(remainingKB, 0))));
                             displayNextImage();
                         }
                     });
@@ -271,6 +298,18 @@ public class SubmitFragment extends BaseFragment {
             }
         });
     }
+
+//    /**
+//     * Intialises a new Compressor object at set files to compress and path to save zip file to
+//     *
+//     * @param files - array of files to compress
+//     * @param path - file path to save zipped file to
+//     * @return - new Compressor object
+//     */
+//    public Compressor compress(File[] files, String path) {
+//        Compressor c = new Compressor(files, path);
+//        return c;
+//    }
 
     /**
      * Override and handle on back action return true if consumed the event
@@ -313,6 +352,14 @@ public class SubmitFragment extends BaseFragment {
         submitFragment.setArguments(args);
 
         return submitFragment;
+    }
+
+    @Override
+    public void dataRead(long buffer) {
+        //Log.i(TAG, "Buffer: " + buffer);
+            totalBytesCompressed += buffer;
+            Log.i("Bytes: ", String.valueOf(totalBytes));
+            Log.i("Compressed Bytes: ", String.valueOf(totalBytesCompressed));
     }
 
     /**
