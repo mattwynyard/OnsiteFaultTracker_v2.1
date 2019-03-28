@@ -224,7 +224,6 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-
         mListener = null;
         BusNotificationUtil.sharedInstance().getBus().unregister(this);
     }
@@ -236,7 +235,6 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-
         updateButtonStates();
     }
 
@@ -298,7 +296,6 @@ public class HomeFragment extends BaseFragment {
             Log.i(TAG, "Starting BT advertisement");
             startAdvertising();
         }
-    //}
     }
 
     /**
@@ -358,20 +355,6 @@ public class HomeFragment extends BaseFragment {
             }
         }
     }
-
-//    /**
-//     * Checks if Bluetooth is enabled, otherwise, requests permission to enable it
-//     * Then enables Bluetooth if the user accepts
-//     */
-//    public void checkBluetoothEnabled() {
-//        if (!BLEManager.sharedInstance().isBluetoothEnabled()) {
-//            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-//        } else {
-//            BLEManager.sharedInstance().startAdvertising();
-//            // TODO:TEMPHACK BLEManager.sharedInstance().startScanning(getActivity());
-//        }
-//    }
 
     public boolean hasPermissions(Context context, String... permissions) {
         if (context != null && permissions != null) {

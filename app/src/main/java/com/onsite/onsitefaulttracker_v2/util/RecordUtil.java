@@ -176,16 +176,16 @@ public class RecordUtil {
             // TODO: Return an error
             return false;
         }
-        File sdFolder = new File(EXTERNAL_SD_CARD);
-        if (checkSDCard(sdFolder)) {
-            File externalDir = mContext.getExternalFilesDir(newRecord.recordFolderName);
-        } else {
-            File newRecordPath = new File(baseFolder.getAbsoluteFile() + "/" + newRecord.recordFolderName);
-            if (!newRecordPath.mkdir()) {
-                // TODO: Return an error
-                return false;
-            }
+//        File sdFolder = new File(EXTERNAL_SD_CARD);
+//        if (checkSDCard(sdFolder)) {
+//            File externalDir = mContext.getExternalFilesDir(newRecord.recordFolderName);
+//        } else {
+        File newRecordPath = new File(baseFolder.getAbsoluteFile() + "/" + newRecord.recordFolderName);
+        if (!newRecordPath.mkdir()) {
+            // TODO: Return an error
+            return false;
         }
+
         mCurrentRecord = newRecord;
         saveCurrentRecord();
         return true;
@@ -561,18 +561,40 @@ public class RecordUtil {
         }
         File sdFolder = new File(EXTERNAL_SD_CARD);
         if (checkSDCard(sdFolder)) {
-            //Log.i("SD Card Available: ", "true");
-            return sdFolder;
-        } else {
+            Log.i("SD Card Available: ", "true");
+            //return sdFolder;
+        }
             //Log.i("SD Card Available: ", "false");
-            File rootFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + RECORD_STORAGE_FOLDER);
+        File rootFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + RECORD_STORAGE_FOLDER);
+        if (!rootFolder.exists()) {
+            if (!rootFolder.mkdir()) {
+                return null;
+            }
+        }
+        return rootFolder;
+    }
+
+    public File getBaseFolder(boolean sdCard) {
+        File rootFolder = null;
+        if (Environment.getExternalStorageDirectory() == null) {
+            return null;
+        }
+        if (sdCard) {
+            File sdFolder = new File(EXTERNAL_SD_CARD);
+            if (checkSDCard(sdFolder)) {
+                Log.i("SD Card Available: ", "true");
+                rootFolder = sdFolder;
+            }
+        } else {
+        //Log.i("SD Card Available: ", "false");
+            rootFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + RECORD_STORAGE_FOLDER);
             if (!rootFolder.exists()) {
                 if (!rootFolder.mkdir()) {
                     return null;
                 }
             }
-            return rootFolder;
         }
+        return rootFolder;
     }
 
     /**

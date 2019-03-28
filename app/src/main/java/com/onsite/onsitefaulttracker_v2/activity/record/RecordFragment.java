@@ -365,13 +365,12 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
      * Stops recording and displays an error to the user.
      */
     private void onOutOfDiskSpaceError() {
-        stopRecording();
-
         if (BLTManager.sharedInstance().getState() == 3) {
             //BLTManager.sharedInstance().sendPhoto("M:OUT OF CAMERA SPACE,", null);
             MessageUtil.sharedInstance().setError(2);
+            stopRecording();
         } else {
-
+            stopRecording();
             new AlertDialog.Builder(getActivity())
                     .setTitle(getString(R.string.record_no_disk_space_title))
                     .setMessage(getString(R.string.record_no_disk_space_message))
@@ -504,7 +503,7 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
         if (mRecording) {
             Log.i(TAG, "Stop recording called");
             mRecording = false;
-            BLTManager.sharedInstance().sendMessge("CONNECTED");
+            BLTManager.sharedInstance().sendMessge("NOTRECORDING,");
             //MessageUtil.sharedInstance().setRecording(true);
             //BLTManager.sharedInstance().sendMessage("NOTRECORDING,");
             //BLTManager.sharedInstance().setRecording(false);
