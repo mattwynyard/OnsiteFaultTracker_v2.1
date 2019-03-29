@@ -352,6 +352,10 @@ public class HomeFragment extends BaseFragment {
                 setBTName();
                 startBluetooth();
                 //startGPS();
+            } else {
+                mAdvertising = false;
+                BusNotificationUtil.sharedInstance().postNotification(new BLTNotConnectedNotification());
+                setBTName();
             }
         }
     }

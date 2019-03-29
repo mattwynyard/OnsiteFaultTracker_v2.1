@@ -417,7 +417,6 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
     private void displayLowDiskSpaceError() {
 
         if (BLTManager.sharedInstance().getState() == 3) {
-            //BLTManager.sharedInstance().sendPhoto("M:LOW CAMERA SPACE,", null);
             MessageUtil.sharedInstance().setError(1);
         } else {
             new AlertDialog.Builder(getActivity())
