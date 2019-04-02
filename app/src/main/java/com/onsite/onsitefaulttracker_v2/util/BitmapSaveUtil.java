@@ -42,14 +42,12 @@ public class BitmapSaveUtil {
     private static final String TAG = BitmapSaveUtil.class.getSimpleName();
 
     // The low disk space threshold
-    private static final long LOW_DISK_SPACE_THRESHOLD = 204800L;
+    private static final long LOW_DISK_SPACE_THRESHOLD = 20480000L; //20,000 KB
 
     private static final double THUMBNAIL_REDUCTION = 0.25;
 
     private int totalBitMapTime = 0;
     private int totalBitMapCount = 0;
-    //private double avgSaveTime = 0;
-
     // An enum which has all the SaveBitmapResult values
     public enum SaveBitmapResult {
         Save,
@@ -74,6 +72,8 @@ public class BitmapSaveUtil {
 
     private ExecutorService mThreadPool;
 
+    Runnable task1, task2;
+
     /**
      * Store the appication context for access to storage
      *
@@ -94,7 +94,7 @@ public class BitmapSaveUtil {
         mTz = mCal.getTimeZone();
         ThreadFactoryUtil factory = new ThreadFactoryUtil("message", NORM_PRIORITY);
         //mThreadPool = Executors.newSingleThreadExecutor(factory);
-        mThreadPool = new ThreadPoolExecutor(1, 1, 5, TimeUnit.SECONDS,
+        mThreadPool = new ThreadPoolExecutor(2, 2, 5, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>(), factory,
                 new ThreadPoolExecutor.CallerRunsPolicy());
     }
@@ -123,7 +123,7 @@ public class BitmapSaveUtil {
                                        final Record record,
                                        final float widthDivisor,
                                        final boolean isLandscape) {
-        Date nowDate = new Date();
+        final Date nowDate = new Date();
         String halfAppend = "";
         boolean useHalfAppend = (SettingsUtil.sharedInstance().getPictureFrequency() % 1000 > 0);
 //        if (useHalfAppend && (time % 1000) >= 500) {
@@ -140,7 +140,8 @@ public class BitmapSaveUtil {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(FILE_DATE_FORMAT);
         String dateString = simpleDateFormat.format(nowDate);
 
-        SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        //SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
         final String mesageDateString = messageDateFormat.format(nowDate);
 
 
@@ -167,7 +168,7 @@ public class BitmapSaveUtil {
                     Log.e(TAG, "Error saving snap, Record path does not exist");
                     return;
                 }
-                File file = new File(path + "/", filename + ".jpg");
+                final File file = new File(path + "/", filename + ".jpg");
                 //File fileResize = new File(path + "/", filename + "_R.jpg");
                 try {
                     long start = System.currentTimeMillis();
@@ -192,7 +193,7 @@ public class BitmapSaveUtil {
                         return;
                     }
                     sizedBmp.recycle();
-                    ByteArrayOutputStream photo = new ByteArrayOutputStream();
+                    final ByteArrayOutputStream photo = new ByteArrayOutputStream();
                     rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, CalculationUtil
                             .sharedInstance().estimateQualityValueForImageSize(), fOutputStream);
 
@@ -211,19 +212,30 @@ public class BitmapSaveUtil {
 
                     fOutputStream.flush();
                     fOutputStream.close();
-                    //fOutputStreamResize.flush();
-                    //fOutputStreamResize.close();
 
                     long finish = System.currentTimeMillis();
                     Log.d(TAG, "Photo save time: " + (finish - start));
                     Log.d(TAG, "Bitmap count: " + totalBitMapCount);
                     totalBitMapTime += (finish - start);
                     Double time = (double)totalBitMapTime / totalBitMapCount;
-                    Double avgSaveTime = new BigDecimal(time).setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
+                    final Double avgSaveTime = new BigDecimal(time).setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
                     photo.size();
-
-                    sendMessage(mesageDateString, filename, photo, avgSaveTime);
-
+                    task1 = new Runnable() {
+                        @Override
+                        public void run() {
+                            sendMessage(mesageDateString, filename, photo, avgSaveTime);
+                        }
+                    };
+                    task2 = new Runnable() {
+                        @Override
+                        public void run() {
+                            String _file = file.getAbsolutePath();
+                            EXIFUtil.sharedInstance().geoTagFile(_file, nowDate);
+                        }
+                    };
+                    mThreadPool.execute(task1);
+                    mThreadPool.execute(task2);
+                    Log.d(TAG,mThreadPool.toString());
                     Log.d(TAG, "Avergage Photo save time: " + (double)(totalBitMapTime / totalBitMapCount));
 
                 } catch (FileNotFoundException e) {
@@ -236,9 +248,6 @@ public class BitmapSaveUtil {
                 bitmapToSave.recycle();
             }
         });
-        //mThreadPool.execute(task);
-        //Log.d(TAG,mThreadPool.toString());
-        //final String message = buildMessage(mMesageDateString, filename, avgSaveTime);
 
         if (availableSpace <= LOW_DISK_SPACE_THRESHOLD) {
             return SaveBitmapResult.SaveLowDiskSpace;
@@ -252,6 +261,7 @@ public class BitmapSaveUtil {
     }
 
     private void sendMessage(String date, String filename, ByteArrayOutputStream photo, Double saveTime) {
+        long start = System.currentTimeMillis();
         Log.d(TAG, "JPEG written to disk");
         String message = buildMessage(date, filename, saveTime);
         MessageUtil.sharedInstance().setMessage(message);
@@ -261,6 +271,8 @@ public class BitmapSaveUtil {
         MessageUtil.sharedInstance().setPayload(payload);
         ByteArrayOutputStream m = MessageUtil.sharedInstance().getMessage();
         BLTManager.sharedInstance().sendMessge(m);
+        long finish = System.currentTimeMillis();
+        Log.d(TAG, "Message send time: " + (finish - start));
     }
 
     /**
@@ -280,10 +292,6 @@ public class BitmapSaveUtil {
         Log.d(TAG, "String builder path: " +  message);
         return message;
     }
-
-//    private void sendMessage(final String message ) {
-//        BLTManager.sharedInstance().sendMessage(message);
-//    }
 
     /**
      *  sends a message and photo through bluetooth, see sendPhoto method in BLTManger for the

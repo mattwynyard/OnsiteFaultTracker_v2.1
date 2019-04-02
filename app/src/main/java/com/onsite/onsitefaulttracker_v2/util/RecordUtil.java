@@ -507,6 +507,21 @@ public class RecordUtil {
         }
     }
 
+    /**
+     * Checks to see if phone has and external sd card inserted
+     * @return - true if present, false if not
+     */
+
+    public boolean checkSDCard() {
+        String isSDSupportedDevice = Environment.getExternalStorageState(new File(EXTERNAL_SD_CARD));
+        if(isSDSupportedDevice.equals("mounted")) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
 
     /**
      * Updates the record count variable by counting the number of records in storage

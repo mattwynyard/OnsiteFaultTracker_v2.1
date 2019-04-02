@@ -221,6 +221,7 @@ public class BLTManager {
     }
 
     public void sendMessge(final String message) {
+
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         //byte[] messageBytes = message.getBytes(StandardCharsets.US_ASCII);
         float currentBatteryLevel = BatteryUtil.sharedInstance().getBatteryLevel();
@@ -238,13 +239,17 @@ public class BLTManager {
         bytes = MessageUtil.sharedInstance().getMessage();
 
 
+
+
         try {
             //bytes.write(messageBytes);
             bytes.writeTo(mSocket.getOutputStream());
             mSocket.getOutputStream().flush();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
 

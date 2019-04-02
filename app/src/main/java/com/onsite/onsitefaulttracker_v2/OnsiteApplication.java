@@ -13,6 +13,7 @@ import com.onsite.onsitefaulttracker_v2.util.BitmapSaveUtil;
 import com.onsite.onsitefaulttracker_v2.util.BusNotificationUtil;
 import com.onsite.onsitefaulttracker_v2.util.CalculationUtil;
 import com.onsite.onsitefaulttracker_v2.util.CameraUtil;
+import com.onsite.onsitefaulttracker_v2.util.EXIFUtil;
 import com.onsite.onsitefaulttracker_v2.util.MessageUtil;
 import com.onsite.onsitefaulttracker_v2.util.RecordUtil;
 import com.onsite.onsitefaulttracker_v2.util.SettingsUtil;
@@ -49,7 +50,7 @@ public class OnsiteApplication extends Application {
         BLTManager.initialize(this);
         BusNotificationUtil.initialize(this);
         MessageUtil.initialize(this);
-        //TcpConnection.initialize(this);
+        EXIFUtil.initialize(this);
 
         Thread.setDefaultUncaughtExceptionHandler(
                 new Thread.UncaughtExceptionHandler() {

@@ -180,8 +180,6 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
     @Override
     public void onResume() {
         super.onResume();
-        //BLTManager.sharedInstance().sendMessage("RECORDING,");
-        //BLTManager.sharedInstance().sendPhoto("RECORDING,", null);
         MessageUtil.sharedInstance().setRecording("R");
         Log.i(TAG, "RECORD:RESUMED");
         // When the screen is turned off and turned back on, the SurfaceTexture is already
@@ -204,8 +202,6 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
     @Override
     public void onPause() {
         super.onPause();
-        //BLTManager.sharedInstance().sendMessage("NOTRECORDING,");
-        //BLTManager.sharedInstance().sendPhoto("NOTRECORDING,", null);
         MessageUtil.sharedInstance().setRecording("N");
         Log.i(TAG, "RECORD:PAUSED");
         if (mStartedRecordingTime > 0) {
@@ -262,21 +258,13 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
                     if (!mDisplayedLowDiskError) {
                         displayLowDiskSpaceError();
                         mDisplayedLowDiskError = true;
-                        //BLTManager.sharedInstance().sendPhoto("M:LOW DISK SPACE,", null);
-                        //MessageUtil.sharedInstance().setMemory(1);
                     }
-
                     if (currentTime - mLastWarningSoundedTime >= SOUND_WARNING_INTERVAL) {
                         mLastWarningSoundedTime = currentTime;
-
                         //playWarningSound();
                     }
                 } else {
-                    //if (mRecord.photoCount % 60 == 0) {
-                        //BLTManager.sharedInstance().sendMessage("M:OK,");
                     MessageUtil.sharedInstance().setError(0);
-                        //BLTManager.sharedInstance().sendPhoto("M:OK,", null);
-                    //}
                 }
                 mRecord.photoCount++;
                 Log.i(TAG, "Photo Count: " + mRecord.photoCount);
@@ -295,8 +283,6 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
 
                 if (BLTManager.sharedInstance().getState() == 3) { //STATE_CONNECTED
                     int batteryLevel = Math.round(currentBatteryLevel);
-                    String msg = "B:" + Integer.toString(batteryLevel) + "%,";
-                    //BLTManager.sharedInstance().sendMessage(msg);
                     MessageUtil.sharedInstance().setBattery(batteryLevel);
 
                 } else {
@@ -320,7 +306,6 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
             }
         }
     }
-
     /**
      * Action when an error occurs while recording,
      * such as frames not being captured.
