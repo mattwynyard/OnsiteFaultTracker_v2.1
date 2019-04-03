@@ -140,8 +140,8 @@ public class BitmapSaveUtil {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(FILE_DATE_FORMAT);
         String dateString = simpleDateFormat.format(nowDate);
 
-        SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        //SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
+        //SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
         final String mesageDateString = messageDateFormat.format(nowDate);
 
 
@@ -219,11 +219,12 @@ public class BitmapSaveUtil {
                     totalBitMapTime += (finish - start);
                     Double time = (double)totalBitMapTime / totalBitMapCount;
                     final Double avgSaveTime = new BigDecimal(time).setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
+                    final long frequency = SettingsUtil.sharedInstance().getPictureFrequency();
                     photo.size();
                     task1 = new Runnable() {
                         @Override
                         public void run() {
-                            sendMessage(mesageDateString, filename, photo, avgSaveTime);
+                            sendMessage(mesageDateString, filename, photo, avgSaveTime, frequency);
                         }
                     };
                     task2 = new Runnable() {
@@ -260,10 +261,11 @@ public class BitmapSaveUtil {
         return mThreadPool;
     }
 
-    private void sendMessage(String date, String filename, ByteArrayOutputStream photo, Double saveTime) {
+    private void sendMessage(String date, String filename, ByteArrayOutputStream photo,
+                             Double saveTime, long frequency) {
         long start = System.currentTimeMillis();
         Log.d(TAG, "JPEG written to disk");
-        String message = buildMessage(date, filename, saveTime);
+        String message = buildMessage(date, filename, saveTime, frequency);
         MessageUtil.sharedInstance().setMessage(message);
         MessageUtil.sharedInstance().setPhoto(photo.toByteArray());
         int messageLength = MessageUtil.sharedInstance().getMessageLength();
@@ -282,12 +284,13 @@ public class BitmapSaveUtil {
      * @param saveTime - the time taken to prepare the bitmap (testing only)
      * @return - a string with relevant data ready to be sent through bluetooth
      */
-    private String buildMessage(String dateTime, String file, Double saveTime) {
+    private String buildMessage(String dateTime, String file, Double saveTime, long frequency) {
 
         StringBuilder messageString = new StringBuilder();
         messageString.append("T:" + dateTime + "|");
         messageString.append(file + "|");
-        messageString.append(saveTime + ",");
+        messageString.append(saveTime + "|");
+        messageString.append(frequency + ",");
         String message = messageString.toString();
         Log.d(TAG, "String builder path: " +  message);
         return message;
