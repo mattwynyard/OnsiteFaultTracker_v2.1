@@ -61,9 +61,9 @@ public class EXIFUtil {
         String timeStamp = getDateTimeStamp(time, "time");
         String dateStamp = getDateTimeStamp(time, "date");
         String datum = "WGS_84";
-        Double latitude_ref = 0.0;
-        Double longitude_ref = 0.0;
-        Double altitude_ref = 0.0;
+        Double latitude_ref = -36.939318;
+        Double longitude_ref = 174.892701;
+        Double altitude_ref = 39.0;
         String bearing = formatEXIFDouble(0, 100);
 
         String latitude = DMS(latitude_ref, 10000);
@@ -104,9 +104,9 @@ public class EXIFUtil {
                     exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION,
                             bearing);
                     exif.setAttribute(ExifInterface.TAG_GPS_SPEED,
-                            "0");
+                            "0/10");
                     exif.setAttribute(ExifInterface.TAG_GPS_DOP,
-                            "999");
+                            "999/10");
                     exif.setAttribute(ExifInterface.TAG_GPS_SATELLITES,
                             "0");
                     exif.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, timeStamp);

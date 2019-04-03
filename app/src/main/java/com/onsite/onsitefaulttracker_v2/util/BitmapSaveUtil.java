@@ -140,8 +140,8 @@ public class BitmapSaveUtil {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(FILE_DATE_FORMAT);
         String dateString = simpleDateFormat.format(nowDate);
 
-        //SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
+        SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        //SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
         final String mesageDateString = messageDateFormat.format(nowDate);
 
 
