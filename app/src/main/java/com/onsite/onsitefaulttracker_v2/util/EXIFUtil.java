@@ -57,9 +57,9 @@ public class EXIFUtil {
         }
     }
 
-    public void geoTagFile(String path, Date time) {
-        String timeStamp = getDateTimeStamp(time, "time");
-        String dateStamp = getDateTimeStamp(time, "date");
+    public void geoTagFile(String path, Date timeStamp) {
+        //String timeStamp = getDateTimeStamp(time, "time");
+        //String dateStamp = getDateTimeStamp(time, "date");
         String datum = "WGS_84";
         Double latitude_ref = -36.939318;
         Double longitude_ref = 174.892701;
@@ -72,7 +72,7 @@ public class EXIFUtil {
 
 
         writeGeoTag(path, latitude, latitude_ref, longitude, longitude_ref, altitude, altitude_ref,
-                bearing, timeStamp, dateStamp, datum);
+                bearing, timeStamp.toString(), datum);
     }
 
     //--EXIF FUNCTIONS--
@@ -80,7 +80,7 @@ public class EXIFUtil {
     public void writeGeoTag(final String path, final String latitude, final Double latitude_ref,
                             final String longitude, final Double longitude_ref,
                             final String altitude, final Double altitude_ref, final String bearing,
-                            final String timeStamp, final String dateStamp, final String datum) {
+                            final String timeStamp, final String datum) {
 
 //        //ExifInterface exif = null;
 //        ExecutorService threadPool = BLTManager.sharedInstance().getThreadPool();
@@ -109,8 +109,9 @@ public class EXIFUtil {
                             "999/10");
                     exif.setAttribute(ExifInterface.TAG_GPS_SATELLITES,
                             "0");
-                    exif.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, timeStamp);
-                    exif.setAttribute(ExifInterface.TAG_GPS_DATESTAMP, dateStamp);
+                    //exif.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, timeStamp);
+                    //exif.setAttribute(ExifInterface.TAG_GPS_DATESTAMP, dateStamp);
+                    exif.setAttribute(ExifInterface.TAG_DATETIME, timeStamp);
                     exif.setAttribute(ExifInterface.TAG_GPS_MAP_DATUM, datum);
                     exif.saveAttributes();
                 } catch (IOException e) {

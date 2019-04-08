@@ -42,7 +42,7 @@ public class BitmapSaveUtil {
     private static final String TAG = BitmapSaveUtil.class.getSimpleName();
 
     // The low disk space threshold
-    private static final long LOW_DISK_SPACE_THRESHOLD = 20480000L; //20,000 KB
+    private static final long LOW_DISK_SPACE_THRESHOLD = 204800L; //204.8 MB
 
     private static final double THUMBNAIL_REDUCTION = 0.25;
 
