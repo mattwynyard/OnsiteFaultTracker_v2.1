@@ -239,7 +239,6 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
 
         // Grab a bitmap from the current display on the texture view
         final Bitmap snapBitmap = mTextureView.getBitmap();
-
         // If the bitmap is valid save it as the next image using the BitmapSaveUtil
        //TODO:TEMPHACK if (snapBitmap != null && snapBitmap.getWidth() > 0 && snapBitmap.getHeight() > 0) {
         if (snapBitmap != null && snapBitmap.getHeight() > 0 && snapBitmap.getWidth() > 0) {

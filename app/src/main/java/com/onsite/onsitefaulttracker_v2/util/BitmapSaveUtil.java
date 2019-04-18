@@ -132,15 +132,16 @@ public class BitmapSaveUtil {
 //            halfAppend = "_000";
 //        }
         totalBitMapCount++;
-        if (count.get() == 10) {
-            count.set(0);
-        }
-        halfAppend = Integer.toString(count.getAndIncrement());
+//        if (count.get() == 10) {
+//            count.set(0);
+//        }
+//        halfAppend = Integer.toString(count.getAndIncrement());
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(FILE_DATE_FORMAT);
         String dateString = simpleDateFormat.format(nowDate);
 
-        //SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        SimpleDateFormat millisecondFormat = new SimpleDateFormat("SSS");
+        String millisecondString = millisecondFormat.format(nowDate);
         SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
         final String mesageDateString = messageDateFormat.format(nowDate);
 
@@ -150,7 +151,7 @@ public class BitmapSaveUtil {
             cameraIdPrefix = "NOID";
         }
         cameraIdPrefix += "_";
-        final String filename = cameraIdPrefix + "IMG" + dateString + "-" + halfAppend;
+        final String filename = cameraIdPrefix + "IMG" + dateString + "_" + millisecondString;
 
         long availableSpace = CalculationUtil.sharedInstance().getAvailableStorageSpaceKB();
         if (availableSpace <= 1024) {
