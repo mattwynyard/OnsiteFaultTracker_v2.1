@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.location.Location;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.onsite.onsitefaulttracker_v2.connectivity.BLTManager;
@@ -151,6 +152,8 @@ public class BitmapSaveUtil {
 
         Bitmap resizedBitmap;
         final Location location = GPSUtil.sharedInstance().getLocation();
+        Bundle extras = location.getExtras();
+        Log.d(TAG, "extras size: " + extras.get("satellites"));
 //        Log.d(TAG, "Latitude: " + Location.convert(location.getLatitude(),
 //                Location.FORMAT_SECONDS));
 //        Log.d(TAG, "Longitude: " + Location.convert(location.getLongitude(),
@@ -234,7 +237,7 @@ public class BitmapSaveUtil {
                         @Override
                         public void run() {
                             String _file = file.getAbsolutePath();
-                            EXIFUtil.sharedInstance().geoTagFile(_file, nowDate);
+                            EXIFUtil.sharedInstance().geoTagFile(_file, nowDate, location);
                         }
                     };
                     mThreadPool.execute(task1);
