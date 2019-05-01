@@ -521,8 +521,6 @@ public class RecordUtil {
             return false;
         }
     }
-
-
     /**
      * Updates the record count variable by counting the number of records in storage
      */

@@ -1,6 +1,7 @@
 package com.onsite.onsitefaulttracker_v2.util;
 
 import android.content.Context;
+import android.location.Location;
 import android.media.ExifInterface;
 
 import java.io.IOException;
@@ -57,24 +58,30 @@ public class EXIFUtil {
         }
     }
 
-    public void geoTagFile(String path, Date timeStamp) {
-        //String timeStamp = getDateTimeStamp(time, "time");
-        //String dateStamp = getDateTimeStamp(time, "date");
+    public void geoTagFile(String path, Date timeStamp, Location location) {
         String datum = "WGS_84";
-        Double latitude_ref = -36.939318;
-        Double longitude_ref = 174.892701;
-        Double altitude_ref = 39.0;
-        String bearing = formatEXIFDouble(0, 100);
-
+        Double latitude_ref;
+        Double longitude_ref;
+        Double altitude_ref;
+        Double bearing_ref;
+        if (location == null) {
+            latitude_ref = -36.939318;
+            longitude_ref = 174.892701;
+            altitude_ref = 39.0;
+            bearing_ref = 0.0;
+        } else {
+            latitude_ref = location.getLatitude();
+            longitude_ref = location.getLongitude();
+            altitude_ref = location.getAltitude();
+            bearing_ref = Double.valueOf(location.getBearing());
+        }
+        String bearing = formatEXIFDouble(bearing_ref, 100);
         String latitude = DMS(latitude_ref, 10000);
         String longitude = DMS(longitude_ref, 10000);
         String altitude = formatEXIFDouble(altitude_ref, 100);
-
-
         writeGeoTag(path, latitude, latitude_ref, longitude, longitude_ref, altitude, altitude_ref,
                 bearing, timeStamp.toString(), datum);
     }
-
     //--EXIF FUNCTIONS--
 //TODO fix for negative altitudes
     public void writeGeoTag(final String path, final String latitude, final Double latitude_ref,
@@ -82,45 +89,34 @@ public class EXIFUtil {
                             final String altitude, final Double altitude_ref, final String bearing,
                             final String timeStamp, final String datum) {
 
-//        //ExifInterface exif = null;
-//        ExecutorService threadPool = BLTManager.sharedInstance().getThreadPool();
-//        Runnable task = new Runnable() {
-//            @Override
-//            public void run() {
-                try {
-                    ExifInterface exif = new ExifInterface(path);
-                    exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE,
-                            latitude);
-                    exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, latitude_ref
-                            < 0 ? "S" : "N");
-                    exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE,
-                            longitude);
-                    exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, longitude_ref
-                            < 0 ? "W" : "E");
-                    exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE,
-                            altitude);
-                    exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, altitude_ref
-                            < 0 ? "1" : "0");
-                    exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION,
-                            bearing);
-                    exif.setAttribute(ExifInterface.TAG_GPS_SPEED,
-                            "0/10");
-                    exif.setAttribute(ExifInterface.TAG_GPS_DOP,
-                            "999/10");
-                    exif.setAttribute(ExifInterface.TAG_GPS_SATELLITES,
-                            "0");
-                    //exif.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, timeStamp);
-                    //exif.setAttribute(ExifInterface.TAG_GPS_DATESTAMP, dateStamp);
-                    exif.setAttribute(ExifInterface.TAG_DATETIME, timeStamp);
-                    exif.setAttribute(ExifInterface.TAG_GPS_MAP_DATUM, datum);
-                    exif.saveAttributes();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            //}
-        //};
-        //threadPool.execute(task);
-
+        try {
+            ExifInterface exif = new ExifInterface(path);
+            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE,
+                    latitude);
+            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, latitude_ref
+                    < 0 ? "S" : "N");
+            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE,
+                    longitude);
+            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, longitude_ref
+                    < 0 ? "W" : "E");
+            exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE,
+                    altitude);
+            exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, altitude_ref
+                    < 0 ? "1" : "0");
+            exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION,
+                    bearing);
+            exif.setAttribute(ExifInterface.TAG_GPS_SPEED,
+                    "0/10");
+            exif.setAttribute(ExifInterface.TAG_GPS_DOP,
+                    "999/10");
+            exif.setAttribute(ExifInterface.TAG_GPS_SATELLITES,
+                    "0");
+            exif.setAttribute(ExifInterface.TAG_DATETIME, timeStamp);
+            exif.setAttribute(ExifInterface.TAG_GPS_MAP_DATUM, datum);
+            exif.saveAttributes();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 //
 //            Log.d(TAG, "Wrote geotag" + path);
 //            Log.d(TAG, "Latitude " + exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE));

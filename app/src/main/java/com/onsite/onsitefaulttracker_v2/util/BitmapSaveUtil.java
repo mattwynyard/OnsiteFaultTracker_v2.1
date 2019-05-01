@@ -3,6 +3,7 @@ package com.onsite.onsitefaulttracker_v2.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.location.Location;
 import android.util.Log;
 
 import com.onsite.onsitefaulttracker_v2.connectivity.BLTManager;
@@ -126,17 +127,7 @@ public class BitmapSaveUtil {
         final Date nowDate = new Date();
         String halfAppend = "";
         boolean useHalfAppend = (SettingsUtil.sharedInstance().getPictureFrequency() % 1000 > 0);
-//        if (useHalfAppend && (time % 1000) >= 500) {
-//            halfAppend = "_500";
-//        } else {
-//            halfAppend = "_000";
-//        }
         totalBitMapCount++;
-//        if (count.get() == 10) {
-//            count.set(0);
-//        }
-//        halfAppend = Integer.toString(count.getAndIncrement());
-
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(FILE_DATE_FORMAT);
         String dateString = simpleDateFormat.format(nowDate);
 
@@ -159,7 +150,20 @@ public class BitmapSaveUtil {
         }
 
         Bitmap resizedBitmap;
+        final Location location = GPSUtil.sharedInstance().getLocation();
+//        Log.d(TAG, "Latitude: " + Location.convert(location.getLatitude(),
+//                Location.FORMAT_SECONDS));
+//        Log.d(TAG, "Longitude: " + Location.convert(location.getLongitude(),
+//                Location.FORMAT_SECONDS));
+        if ( BLTManager.gpsTime != null) {
+            long gpsTimeMilli = BLTManager.gpsTime.getTime();
+            long nanoDelta = Math.round((System.nanoTime() - BLTManager.startNano) / 1000);
+            long timeNowMilli = gpsTimeMilli + nanoDelta;
+            Date timeNow = new Date(timeNowMilli);
+            String fixDateTime = messageDateFormat.format(timeNow);
 
+            Log.d(TAG, "GPS Time: " + fixDateTime);
+        }
         ThreadUtil.executeOnNewThread(new Runnable() {
         //Runnable task = new Runnable() {
             @Override
@@ -170,11 +174,9 @@ public class BitmapSaveUtil {
                     return;
                 }
                 final File file = new File(path + "/", filename + ".jpg");
-                //File fileResize = new File(path + "/", filename + "_R.jpg");
                 try {
                     long start = System.currentTimeMillis();
                     OutputStream fOutputStream = new FileOutputStream(file);
-                    //OutputStream fOutputStreamResize = new FileOutputStream(fileResize);
 
                     float reductionScale = CalculationUtil.sharedInstance()
                             .estimateScaleValueForImageSize();
@@ -197,9 +199,6 @@ public class BitmapSaveUtil {
                     final ByteArrayOutputStream photo = new ByteArrayOutputStream();
                     rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, CalculationUtil
                             .sharedInstance().estimateQualityValueForImageSize(), fOutputStream);
-
-
-
                     Bitmap resizedBitmap = Bitmap.createScaledBitmap(rotatedBitmap,
                             (int)(rotatedBitmap.getWidth() * THUMBNAIL_REDUCTION),
                             (int)(rotatedBitmap.getHeight() * THUMBNAIL_REDUCTION), true);
@@ -224,6 +223,7 @@ public class BitmapSaveUtil {
                     final Double avgSaveTime = new BigDecimal(time).setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
                     final long frequency = SettingsUtil.sharedInstance().getPictureFrequency();
                     photo.size();
+
                     task1 = new Runnable() {
                         @Override
                         public void run() {

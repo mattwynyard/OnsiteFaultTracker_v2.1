@@ -14,6 +14,7 @@ import com.onsite.onsitefaulttracker_v2.util.BusNotificationUtil;
 import com.onsite.onsitefaulttracker_v2.util.CalculationUtil;
 import com.onsite.onsitefaulttracker_v2.util.CameraUtil;
 import com.onsite.onsitefaulttracker_v2.util.EXIFUtil;
+import com.onsite.onsitefaulttracker_v2.util.GPSUtil;
 import com.onsite.onsitefaulttracker_v2.util.MessageUtil;
 import com.onsite.onsitefaulttracker_v2.util.RecordUtil;
 import com.onsite.onsitefaulttracker_v2.util.SettingsUtil;
@@ -51,6 +52,7 @@ public class OnsiteApplication extends Application {
         BusNotificationUtil.initialize(this);
         MessageUtil.initialize(this);
         EXIFUtil.initialize(this);
+        GPSUtil.initialize(this);
 
         Thread.setDefaultUncaughtExceptionHandler(
                 new Thread.UncaughtExceptionHandler() {

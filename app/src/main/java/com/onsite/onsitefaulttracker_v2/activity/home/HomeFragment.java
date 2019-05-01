@@ -78,8 +78,8 @@ public class HomeFragment extends BaseFragment {
     private final int BT_TIMEOUT = 1200; //seconds
 
     String[] PERMISSIONS = {
-            //android.Manifest.permission.ACCESS_COARSE_LOCATION,
-            //android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION,
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
             android.Manifest.permission.CAMERA,
             android.Manifest.permission.READ_PHONE_STATE
@@ -185,10 +185,6 @@ public class HomeFragment extends BaseFragment {
                 mCamera = SettingsUtil.sharedInstance().getCameraId();
                 setBTName();
             }
-            //requestCameraPermission();
-            //requestPhonePermission();
-            //requestStoragePermission();
-            //runTcpConnection();
         }
         return view;
     }
@@ -248,12 +244,6 @@ public class HomeFragment extends BaseFragment {
         mContinueRecordButton.setEnabled(hasCurrentRecord);
         mSubmitRecordButton.setEnabled(hasCurrentRecord);
         mPreviousRecordsButton.setEnabled(hasRecords);
-//        if (TcpConnection.getSharedInstance().isConnected()) {
-//            mConnectionStatusTextView.setText(getString(R.string.connected));
-//        } else {
-//            mConnectionStatusTextView.setText(getString(R.string.not_connected));
-//        }
-
         updateCurrentRecordText();
     }
 
@@ -368,7 +358,6 @@ public class HomeFragment extends BaseFragment {
                 }
             }
         }
-
         return true;
     }
 
@@ -620,11 +609,8 @@ public class HomeFragment extends BaseFragment {
             mCamera = SettingsUtil.sharedInstance().getCameraId();
         }
         createRecord(mCamera + "_" + todaysDisplayDate);
-        //BLTManager.sharedInstance().sendPoolMessage("Record created: " + mCamera + "_"
-        //        + todaysDisplayDate);
         setBTName();
         updateButtonStates();
-        //mListener.onNewRecord();
         if (bluetooth) {
             mListener.onNewRecord();
         }
@@ -683,7 +669,6 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void setBTName() {
-        //String camera = getCameraId();
         String btname = "OnSite_BLT_Adapter_" + mCamera;
         BLTManager.sharedInstance().setBTName(btname);
     }
