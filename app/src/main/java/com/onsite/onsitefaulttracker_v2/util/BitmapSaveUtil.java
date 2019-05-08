@@ -152,12 +152,7 @@ public class BitmapSaveUtil {
 
         Bitmap resizedBitmap;
         final Location location = GPSUtil.sharedInstance().getLocation();
-        Bundle extras = location.getExtras();
-        Log.d(TAG, "extras size: " + extras.get("satellites"));
-//        Log.d(TAG, "Latitude: " + Location.convert(location.getLatitude(),
-//                Location.FORMAT_SECONDS));
-//        Log.d(TAG, "Longitude: " + Location.convert(location.getLongitude(),
-//                Location.FORMAT_SECONDS));
+
         if ( BLTManager.gpsTime != null) {
             long gpsTimeMilli = BLTManager.gpsTime.getTime();
             long nanoDelta = Math.round((System.nanoTime() - BLTManager.startNano) / 1000);
@@ -240,7 +235,9 @@ public class BitmapSaveUtil {
                             EXIFUtil.sharedInstance().geoTagFile(_file, nowDate, location);
                         }
                     };
-                    mThreadPool.execute(task1);
+                    if (BLTManager.sharedInstance().getState() == 3) {
+                        mThreadPool.execute(task1);
+                    }
                     mThreadPool.execute(task2);
                     Log.d(TAG,mThreadPool.toString());
                     Log.d(TAG, "Avergage Photo save time: " + (double)(totalBitMapTime / totalBitMapCount));

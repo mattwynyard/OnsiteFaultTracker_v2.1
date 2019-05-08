@@ -4,6 +4,9 @@ import android.Manifest;
 import android.app.Application;
 import android.content.Context;
 import android.location.Criteria;
+import android.location.GnssClock;
+import android.location.GnssMeasurementsEvent;
+import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
 import android.location.GpsSatellite;
 import android.location.OnNmeaMessageListener;
@@ -23,6 +26,7 @@ import java.io.OutputStreamWriter;
 import java.lang.String;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -216,6 +220,46 @@ public class GPSUtil implements LocationListener {
                     MIN_TIME_BW_UPDATES,
                     MIN_DISTANCE_CHANGE_FOR_UPDATES, mLocationListener);
         }
+
+        GnssMeasurementsEvent.Callback gnssMeasurementsCallback = new GnssMeasurementsEvent.Callback() {
+            @Override
+            public void onGnssMeasurementsReceived(GnssMeasurementsEvent eventArgs) {
+
+                GnssClock clock = eventArgs.getClock();
+                long timeNanos = Math.round(Double.valueOf(clock.getTimeNanos()) - (clock.getFullBiasNanos() - clock.getBiasNanos()));
+                Date gpsTime = new Date();
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.YEAR, 1980);
+                calendar.set(Calendar.MONTH, Calendar.JANUARY);
+                calendar.set(Calendar.DAY_OF_MONTH, 6);
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.HOUR, 0);
+                long calTime = calendar.getTimeInMillis();
+                long diffTime = Math.round(timeNanos / 1000) - calTime;
+                gpsTime.setTime(Math.round(diffTime));
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
+
+                String dateString = dateFormat.format(gpsTime);
+                Log.d(TAG, "GPS time: " + dateString);
+            }
+
+            public void onStatusChanged(int status) {
+
+            }
+        };
+
+        GnssNavigationMessage.Callback gnssMessageCallback = new GnssNavigationMessage.Callback() {
+            @Override
+            public void onGnssNavigationMessageReceived(GnssNavigationMessage event) {
+
+            }
+
+            public void onStatusChanged(int status) {
+
+            }
+        };
+
         GnssStatus.Callback gnssStatusCallBack = new GnssStatus.Callback() {
             @Override
             public void onSatelliteStatusChanged(GnssStatus status) {
@@ -228,7 +272,7 @@ public class GPSUtil implements LocationListener {
                         mSatellites++;
                     }
                 }
-                Log.d(TAG, "Satellites used in fix: " + mSatellites);
+                //Log.d(TAG, "Satellites used in fix: " + mSatellites);
             }
 
             @Override
@@ -267,6 +311,8 @@ public class GPSUtil implements LocationListener {
             return;
         }
         mLocationManager.registerGnssStatusCallback(gnssStatusCallBack);
+        //mLocationManager.registerGnssNavigationMessageCallback(gnssMessageCallback);
+        //mLocationManager.registerGnssMeasurementsCallback(gnssMeasurementsCallback);
     }
 
     public boolean getStatus() {

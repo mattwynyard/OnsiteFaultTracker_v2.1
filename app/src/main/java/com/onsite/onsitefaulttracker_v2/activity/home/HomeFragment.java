@@ -298,6 +298,7 @@ public class HomeFragment extends BaseFragment {
                     new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
             discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, BT_TIMEOUT);
             discoverableIntent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+            //TODO fix for Android 9 issue with discoverable intent
             startActivityForResult(discoverableIntent, REQUEST_ENABLE_DISCOVERY);
         } else {
             Log.i(TAG, "Bluetooth Not Enabled");
@@ -335,7 +336,8 @@ public class HomeFragment extends BaseFragment {
             }
         } else if (requestCode == REQUEST_ENABLE_DISCOVERY) {
             Log.i(TAG, "Result code " + resultCode);
-            if (resultCode == BT_TIMEOUT) { //user selected OK
+            //temp hack to enable bluetooth on Huawei
+            if (resultCode == BT_TIMEOUT || resultCode == 120) { //user selected OK
                 Log.i(TAG, "Advertising accept");
                 mAdvertising = true;
                 BusNotificationUtil.sharedInstance().postNotification(new BLTListeningNotification());
@@ -411,6 +413,8 @@ public class HomeFragment extends BaseFragment {
                 return "C4";
             case "ce12160cf826108d0c":
                 return "C5";
+            case "LHS7N18A17009063":
+                return "C9";
             default:
                 return "";
         }

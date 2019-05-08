@@ -104,7 +104,7 @@ public class BLTManager {
         setupBluetooth();
         Log.i(TAG, "Bluetooth Setup");
 
-        com.onsite.onsitefaulttracker.util.ThreadFactoryUtil factory = new com.onsite.onsitefaulttracker.util.ThreadFactoryUtil("message");
+        //com.onsite.onsitefaulttracker.util.ThreadFactoryUtil factory = new com.onsite.onsitefaulttracker.util.ThreadFactoryUtil("message");
 
         mThreadPool = BitmapSaveUtil.sharedInstance().getThreadPool();
     }
