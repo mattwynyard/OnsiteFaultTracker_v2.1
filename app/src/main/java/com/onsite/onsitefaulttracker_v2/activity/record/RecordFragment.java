@@ -263,7 +263,9 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
                         //playWarningSound();
                     }
                 } else {
-                    MessageUtil.sharedInstance().setError(0);
+                    if (BLTManager.sharedInstance().getState() == 3) {
+                        MessageUtil.sharedInstance().setError(0);
+                    }
                 }
                 mRecord.photoCount++;
                 Log.i(TAG, "Photo Count: " + mRecord.photoCount);
@@ -324,23 +326,23 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
             Log.e(TAG, "* RECORDING ERROR                                     *");
             Log.e(TAG, "*******************************************************");
 
-            new AlertDialog.Builder(getActivity())
-                    .setTitle(getString(R.string.record_error_title))
-                    .setMessage(getString(R.string.record_error_message))
-                    .setPositiveButton(getString(android.R.string.ok), null)
-                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            getActivity().onBackPressed();
-                        }
-                    })
-                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialog) {
-                            getActivity().onBackPressed();
-                        }
-                    })
-                    .show();
+//            new AlertDialog.Builder(getActivity())
+//                    .setTitle(getString(R.string.record_error_title))
+//                    .setMessage(getString(R.string.record_error_message))
+//                    .setPositiveButton(getString(android.R.string.ok), null)
+//                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+//                        @Override
+//                        public void onDismiss(DialogInterface dialog) {
+//                            getActivity().onBackPressed();
+//                        }
+//                    })
+//                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+//                        @Override
+//                        public void onCancel(DialogInterface dialog) {
+//                            getActivity().onBackPressed();
+//                        }
+//                    })
+//                    .show();
         }
     }
 
@@ -486,7 +488,9 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
         if (mRecording) {
             Log.i(TAG, "Stop recording called");
             mRecording = false;
-            BLTManager.sharedInstance().sendMessge("NOTRECORDING,");
+            if (BLTManager.sharedInstance().getState() == 3) {
+                BLTManager.sharedInstance().sendMessge("NOTRECORDING,");
+            }
             //MessageUtil.sharedInstance().setRecording(true);
             //BLTManager.sharedInstance().sendMessage("NOTRECORDING,");
             //BLTManager.sharedInstance().setRecording(false);
