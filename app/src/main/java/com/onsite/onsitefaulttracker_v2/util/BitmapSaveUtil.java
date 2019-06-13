@@ -125,7 +125,17 @@ public class BitmapSaveUtil {
                                        final Record record,
                                        final float widthDivisor,
                                        final boolean isLandscape) {
-        final Date nowDate = new Date();
+
+        long timeDelta = BLTManager.sharedInstance().getTimeDelta();
+        //Log.d(TAG, "timeDelta: " + timeDelta);
+
+        long timeNow = System.currentTimeMillis();
+        //Log.d(TAG, "timeNowPhoto: " + timeNow);
+        long correctedMilli = timeNow + timeDelta;
+        //Log.d(TAG, "correctedMilli: " + correctedMilli);
+
+        final Date nowDate = new Date(correctedMilli);
+        Log.d(TAG, "Time Corrected: " + nowDate.toString());
         String halfAppend = "";
         boolean useHalfAppend = (SettingsUtil.sharedInstance().getPictureFrequency() % 1000 > 0);
         totalBitMapCount++;
@@ -153,15 +163,10 @@ public class BitmapSaveUtil {
         Bitmap resizedBitmap;
         final Location location = GPSUtil.sharedInstance().getLocation();
 
-        if ( BLTManager.gpsTime != null) {
-            long gpsTimeMilli = BLTManager.gpsTime.getTime();
-            long nanoDelta = Math.round((System.nanoTime() - BLTManager.startNano) / 1000);
-            long timeNowMilli = gpsTimeMilli + nanoDelta;
-            Date timeNow = new Date(timeNowMilli);
-            String fixDateTime = messageDateFormat.format(timeNow);
 
-            Log.d(TAG, "GPS Time: " + fixDateTime);
-        }
+
+
+
         ThreadUtil.executeOnNewThread(new Runnable() {
         //Runnable task = new Runnable() {
             @Override

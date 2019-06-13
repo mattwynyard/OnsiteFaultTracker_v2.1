@@ -20,12 +20,23 @@ import com.onsite.onsitefaulttracker_v2.model.notifcation_events.BLTConnectedNot
 import com.onsite.onsitefaulttracker_v2.model.notifcation_events.BLTNotConnectedNotification;
 
 
+import org.apache.commons.lang3.time.DateUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -63,8 +74,8 @@ public class BLTManager {
     public static final int STATE_TIMEOUT = 4;  // now connected to a remote device
     public static final int STATE_NOTENABLED = 9;  // bluetooth not enabled on phone
 
-    public static Date gpsTime;
-    public static long startNano;
+    //private static Date gpsTime;
+    public static long timeDelta;
 
     private ExecutorService mThreadPool;
     ReentrantLock lock = new ReentrantLock();
@@ -152,6 +163,14 @@ public class BLTManager {
     public void setupBluetooth() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
+    }
+
+//    public Date getGpsTime() {
+//        return gpsTime;
+//    }
+
+    public long getTimeDelta() {
+        return timeDelta;
     }
 
     /**
@@ -396,8 +415,28 @@ public class BLTManager {
                                 BusNotificationUtil.sharedInstance()
                                         .postNotification(new BLTStopRecordingEvent());
                         } else if (line.contains("Time")) {
-                            //set gpsTime;
-                            startNano = System.nanoTime();
+                            String[] time = line.split(":");
+                            int year = Integer.valueOf(time[1]);
+                            int month = Integer.valueOf(time[2]);
+                            int day = Integer.valueOf(time[3]);
+                            int hour = Integer.valueOf(time[4]);
+                            int minute = Integer.valueOf(time[5]);
+                            int second = Integer.valueOf(time[6]);
+                            int millisecond = Integer.valueOf(time[7].substring(0, 2));
+
+                            //Date gpsTime = new Date(year, month - 1, day, hour, minute, second);
+                            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
+                            Calendar gpsTime = Calendar.getInstance();
+                            gpsTime.set(year, month - 1, day, hour, minute, second);
+                            //gpsTime.set(Calendar.MILLISECOND, 0);
+                            Log.d(TAG, "gpsTime: " + dateFormat.format(gpsTime.getTime()));
+
+                            Calendar nowTime = Calendar.getInstance();
+                            Log.d(TAG, "nowTime: " + dateFormat.format(nowTime.getTime()));
+
+                            timeDelta =  ChronoUnit.MILLIS.between(nowTime.toInstant(), gpsTime.toInstant());
+
+                            Log.d(TAG, "timeDelta: " + timeDelta);
 
                         } else {
                             //System.out.println(line);

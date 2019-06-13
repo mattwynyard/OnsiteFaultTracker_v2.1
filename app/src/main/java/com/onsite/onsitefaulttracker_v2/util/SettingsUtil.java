@@ -41,10 +41,10 @@ public class SettingsUtil {
     private static final String KEY_CAMERA_ID = "camera_id";
 
     // The default value for picture frequency
-    private static final long DEFAULT_PICTURE_FREQUENCY = 1000;
+    private static final long DEFAULT_PICTURE_FREQUENCY = 500;
 
     // The default desired image size in KB
-    private static final long DEFAULT_IMAGE_SIZE = 200;
+    private static final long DEFAULT_IMAGE_SIZE = 300;
 
     // The default expected record hours per recording
     private static final float DEFAULT_RECORD_HOURS = 6.0f;
@@ -56,7 +56,7 @@ public class SettingsUtil {
     private static final long DEFAULT_FRAME_DURATION_PERCENTAGE = 0;
 
     // The default focus distance
-    private static final float DEFAULT_FOCUS_DISTANCE = 1.5f;
+    private static final float DEFAULT_FOCUS_DISTANCE = 0.5f;
 
     // The minimum exposure value
     private static final long MIN_EXPOSURE = 1500000;

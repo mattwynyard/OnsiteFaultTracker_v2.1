@@ -214,12 +214,14 @@ public class SettingsFragment extends BaseFragment implements SettingItem.Listen
      * Sets the initial values of the sliders and the value text views
      */
     private void setInitialValues() {
+        SettingsUtil.sharedInstance().resetSettings();
         mCameraId = SettingsUtil.sharedInstance().getCameraId();
         mFrequencyMilliseconds = SettingsUtil.sharedInstance().getPictureFrequency();
         mImageSize = SettingsUtil.sharedInstance().getImageSize();
         mRecordingHours = SettingsUtil.sharedInstance().getRecordingHours();
         mFrameDuration = SettingsUtil.sharedInstance().getFrameDurationPercentage();
         mFocusDistance = SettingsUtil.sharedInstance().getFocusDistance();
+
 
         // Set the seek bar positions
         updateFrequencySeekPosition();
