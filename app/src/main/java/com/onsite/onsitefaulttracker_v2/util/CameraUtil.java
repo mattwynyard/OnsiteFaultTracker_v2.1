@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
@@ -39,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -200,6 +202,8 @@ public class CameraUtil {
     private long mFrameDuration;
     // The ISO that the camera is set at
     private long mSensitivity;
+
+    private CameraCharacteristics characteristics;
 
     /**
      * Initialize the Camera Utils shared instance
@@ -544,24 +548,41 @@ public class CameraUtil {
     private void setUpCameraOutputs(int width, int height) {
         Activity activity = mActiveActivity;
         CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
+
+
         String[] cameras;
         String camera;
         try {
 
             //TODO temphack to determine which phone we are using
             cameras = manager.getCameraIdList();
+
+
             if (cameras.length == 5) {
                 camera = "3"; //huawei
             } else {
                 camera = "0"; //galaxy s7
             }
-            CameraCharacteristics characteristics = manager.getCameraCharacteristics(camera);
+            Log.i(TAG, "Cameras" + cameras);
+            characteristics = manager.getCameraCharacteristics(camera);
+
+            //CameraCharacteristics characteristics2 = manager.getCameraCharacteristics("1");
             // We don't use a front facing camera in this sample.
+            Set ids;
+            if (android.os.Build.VERSION.SDK_INT >= 28) {
+
+                 float[] focalLengths1 = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
+
+                int metadata = CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA;
+                Set id = characteristics.getPhysicalCameraIds();
+                Log.i(TAG, "Ids" + id.toString() );
+            }
+            //characteristics.getPhysicalCameraIds();
             Integer facing = characteristics.get(CameraCharacteristics.LENS_FACING);
             if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
                 return;
             }
-            //characteristics.get(CameraCharacteristics.)
+
             StreamConfigurationMap map = characteristics.get(
                     CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             if (map == null) {
@@ -833,14 +854,27 @@ public class CameraUtil {
                                 }
 
 
+//                                Rect arrayRect = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+//                                //int zoom = characteristics.get(CameraCharacteristics.C
+//                                float zoom = 0.1f;
+//                                float cropW = arrayRect.width() / zoom;
+//                                float cropH = arrayRect.height() / zoom;
+//
+//                                int top = arrayRect.centerY() - (int) (cropH / 2.0f);
+//                                int left = arrayRect.centerX() - (int) (cropW / 2.0f);
+//                                int right = arrayRect.centerX() + (int) (cropW / 2.0);
+//                                int bottom = arrayRect.centerY() + (int) (cropH / 2.0f);
+//
+//                                Rect zoomRect = new Rect(left, top, right, bottom);
+//                                mPreviewRequestBuilder.set(CaptureRequest.SCALER_CROP_REGION, zoomRect);
+                                //mPreviewRequestBuilder.set(CaptureRequest.
+
                                 // Auto focus should be continuous for camera preview.
-                                //mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE,
-                                //        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
-                                //mPreviewRequestBuilder.set(CaptureRequest.LENS_FOCAL_LENGTH, 10.0f);
+
+                                //mPreviewRequestBuilder.set(CaptureRequest.LENS_FOCAL_LENGTH, -1.0f);
                                 mPreviewRequestBuilder.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE,
                                         CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE_ON);
-                                //mPreviewRequestBuilder.set(CaptureRequest.CONTROL_SCENE_MODE ,
-                                // CaptureRequest.CONTROL_SCENE_MODE_STEADYPHOTO);
+                                //mPreviewRequestBuilder.set(CaptureRequest.CONTROL_SCENE_MODE , CaptureRequest.CONTROL_SCENE_MODE_STEADYPHOTO);
                                 mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE,
                                         CaptureRequest.CONTROL_AF_MODE_OFF);
                                 mPreviewRequestBuilder.set(CaptureRequest.LENS_FOCUS_DISTANCE,

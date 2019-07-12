@@ -379,7 +379,7 @@ public class HomeFragment extends BaseFragment {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         Log.d(TAG, "Request called");
         switch (requestCode) {
@@ -415,6 +415,8 @@ public class HomeFragment extends BaseFragment {
                 return "C5";
             case "LHS7N18A17009063":
                 return "C9";
+            case "R58M45X7LDB":
+                return "C6";
             default:
                 return "";
         }

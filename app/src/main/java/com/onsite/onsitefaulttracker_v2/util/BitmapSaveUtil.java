@@ -126,34 +126,33 @@ public class BitmapSaveUtil {
                                        final float widthDivisor,
                                        final boolean isLandscape) {
 
+        SimpleDateFormat millisecondFormat =  new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(FILE_DATE_FORMAT);
+
         long timeDelta = BLTManager.sharedInstance().getTimeDelta();
-        //Log.d(TAG, "timeDelta: " + timeDelta);
 
         long timeNow = System.currentTimeMillis();
-        //Log.d(TAG, "timeNowPhoto: " + timeNow);
         long correctedMilli = timeNow + timeDelta;
-        //Log.d(TAG, "correctedMilli: " + correctedMilli);
 
-        final Date nowDate = new Date(correctedMilli);
-        Log.d(TAG, "Time Corrected: " + nowDate.toString());
-        String halfAppend = "";
-        boolean useHalfAppend = (SettingsUtil.sharedInstance().getPictureFrequency() % 1000 > 0);
+        final Date correctedDate = new Date(correctedMilli);
+        Log.d(TAG, "Time Corrected: " + correctedDate.toString());
+        //String halfAppend = "";
+        //boolean useHalfAppend = (SettingsUtil.sharedInstance().getPictureFrequency() % 1000 > 0);
         totalBitMapCount++;
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(FILE_DATE_FORMAT);
-        String dateString = simpleDateFormat.format(nowDate);
+        int count = totalBitMapCount;
+        //String.format("%06d", count);
+        String bitmapCount = String.format("%06d", count);
 
-        SimpleDateFormat millisecondFormat = new SimpleDateFormat("SSS");
-        String millisecondString = millisecondFormat.format(nowDate);
-        SimpleDateFormat messageDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
-        final String mesageDateString = messageDateFormat.format(nowDate);
-
+        final Date systemTime = new Date(timeNow);
+        String correctedDateString = simpleDateFormat.format(correctedDate);
+        final String mesageDateString = millisecondFormat.format(systemTime);
 
         String cameraIdPrefix = SettingsUtil.sharedInstance().getCameraId();
         if (cameraIdPrefix == null) {
             cameraIdPrefix = "NOID";
         }
         cameraIdPrefix += "_";
-        final String filename = cameraIdPrefix + "IMG" + dateString + "_" + millisecondString;
+        final String filename = cameraIdPrefix + "IMG" + correctedDateString + "_" + bitmapCount;
 
         long availableSpace = CalculationUtil.sharedInstance().getAvailableStorageSpaceKB();
         if (availableSpace <= 1024) {
@@ -162,10 +161,6 @@ public class BitmapSaveUtil {
 
         Bitmap resizedBitmap;
         final Location location = GPSUtil.sharedInstance().getLocation();
-
-
-
-
 
         ThreadUtil.executeOnNewThread(new Runnable() {
         //Runnable task = new Runnable() {
@@ -237,7 +232,7 @@ public class BitmapSaveUtil {
                         @Override
                         public void run() {
                             String _file = file.getAbsolutePath();
-                            EXIFUtil.sharedInstance().geoTagFile(_file, nowDate, location);
+                            EXIFUtil.sharedInstance().geoTagFile(_file, systemTime, location);
                         }
                     };
                     if (BLTManager.sharedInstance().getState() == 3) {
