@@ -41,7 +41,7 @@ public class SettingsUtil {
     private static final String KEY_CAMERA_ID = "camera_id";
 
     // The default value for picture frequency
-    private static final long DEFAULT_PICTURE_FREQUENCY = 500;
+    private static final long DEFAULT_PICTURE_FREQUENCY = 1000;
 
     // The default desired image size in KB
     private static final long DEFAULT_IMAGE_SIZE = 300;
