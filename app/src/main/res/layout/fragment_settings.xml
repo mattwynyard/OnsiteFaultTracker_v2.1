@@ -19,6 +19,78 @@
         <RelativeLayout
             android:id="@+id/camera_id_setting_layout"
             android:layout_width="match_parent"
+            android:layout_height="58dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:paddingStart="@dimen/setting_item_horizontal_padding"
+                android:paddingEnd="@dimen/setting_item_horizontal_padding"
+                android:text="@string/settings_camera_id_title"
+                android:textColor="@color/text_dark" />
+
+            <TextView
+                android:id="@+id/camera_id_edit_text"
+                android:layout_width="@dimen/settings_text_view_width"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/setting_item_horizontal_padding"
+                android:layout_marginEnd="@dimen/setting_item_horizontal_padding"
+                android:text="@string/tap_camera_id" />
+
+            <View
+                android:id="@+id/camera_id_bottom_divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="@dimen/setting_divider_horizontal_padding"
+                android:layout_marginEnd="@dimen/setting_divider_horizontal_padding"
+                android:background="@color/divider_color" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/camera_ori_setting_layout"
+            android:layout_width="match_parent"
+            android:layout_height="62dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:paddingStart="@dimen/setting_item_horizontal_padding"
+                android:paddingEnd="@dimen/setting_item_horizontal_padding"
+                android:text="@string/settings_camera_ori_title"
+                android:textColor="@color/text_dark" />
+
+            <TextView
+                android:id="@+id/camera_ori_edit_text"
+                android:layout_width="@dimen/settings_text_view_width"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/setting_item_horizontal_padding"
+                android:layout_marginEnd="@dimen/setting_item_horizontal_padding"
+                android:text="@string/tap_camera_ori" />
+
+            <View
+                android:id="@+id/camera_ori_bottom_divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="@dimen/setting_divider_horizontal_padding"
+                android:layout_marginEnd="@dimen/setting_divider_horizontal_padding"
+                android:background="@color/divider_color" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/computer_id_setting_layout"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/settings_text_item_height">
 
             <TextView
@@ -29,22 +101,22 @@
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:textColor="@color/text_dark"
-                android:text="@string/settings_camera_id_title"
+                android:text="@string/settings_computer_id_title"
                 />
 
             <TextView
-                android:id="@+id/camera_id_edit_text"
+                android:id="@+id/computer_id_edit_text"
                 android:layout_width="@dimen/settings_text_view_width"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/setting_item_horizontal_padding"
                 android:layout_marginEnd="@dimen/setting_item_horizontal_padding"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:text="@string/tap_camera_id"
+                android:text="@string/tap_computer_id"
                 />
 
             <View
-                android:id="@+id/camera_id_bottom_divider"
+                android:id="@+id/computer_id_bottom_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginStart="@dimen/setting_divider_horizontal_padding"

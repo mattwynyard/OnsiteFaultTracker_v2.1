@@ -40,6 +40,12 @@ public class SettingsUtil {
     // The id of the current camera
     private static final String KEY_CAMERA_ID = "camera_id";
 
+    // The id of the current camera
+    private static final String KEY_CAMERA_ORI = "camera_ori";
+
+    // The id of the current camera
+    private static final String KEY_COMPUTER_ID = "computer_id";
+
     // The default value for picture frequency
     private static final long DEFAULT_PICTURE_FREQUENCY = 1000;
 
@@ -95,6 +101,12 @@ public class SettingsUtil {
     // The camera id of this device
     private String mCameraId;
 
+    // The camera direction of this device
+    private String mCameraOri;
+
+    // The computer this device will connect to
+    private String mComputerId;
+
     // The application context
     private Context mContext;
 
@@ -145,6 +157,8 @@ public class SettingsUtil {
         mUsualRecordingHours = sharedPreferences.getFloat(KEY_RECORDING_HOURS, DEFAULT_RECORD_HOURS);
         mExposure = sharedPreferences.getLong(KEY_EXPOSURE, DEFAULT_EXPOSURE);
         mCameraId = sharedPreferences.getString(KEY_CAMERA_ID, "");
+        mCameraOri = sharedPreferences.getString(KEY_CAMERA_ORI, "");
+        mComputerId = sharedPreferences.getString(KEY_COMPUTER_ID, "");
         mFrameDuration = sharedPreferences.getLong(KEY_FRAME_DURATION_PERCENTAGE, DEFAULT_FRAME_DURATION_PERCENTAGE);
         mFocusDistance = sharedPreferences.getFloat(KEY_FOCUS_DISTANCE, DEFAULT_FOCUS_DISTANCE);
     }
@@ -318,11 +332,55 @@ public class SettingsUtil {
     }
 
     /**
+     * Set the camera ori for this device
+     *
+     * @param cameraOri The direction the camera is facing
+     */
+    public void setCameraOri(final String cameraOri) {
+        mCameraOri = cameraOri;
+        SharedPreferences preferences = mContext.getSharedPreferences(SETTINGS_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(KEY_CAMERA_ORI, mCameraOri);
+        editor.apply();
+    }
+
+    /**
+     * Set the camera id for this device
+     *
+     * @param computerId The camera id to set this device to
+     */
+    public void setComputerId(final String computerId) {
+        mComputerId = computerId;
+        SharedPreferences preferences = mContext.getSharedPreferences(SETTINGS_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(KEY_COMPUTER_ID, mComputerId);
+        editor.apply();
+    }
+
+    /**
      * Get the camera Id
      *
      * @return the camera id of this device
      */
     public String getCameraId() {
         return mCameraId;
+    }
+
+    /**
+     * Get the camera Ori
+     *
+     * @return the camera id of this device
+     */
+    public String getCameraOri() {
+        return mCameraOri;
+    }
+
+    /**
+     * Get the camera Ori
+     *
+     * @return the camera id of this device
+     */
+    public String getComputerId() {
+        return mComputerId;
     }
 }

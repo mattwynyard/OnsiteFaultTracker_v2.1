@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.onsite.onsitefaulttracker_v2.connectivity.BLTManager;
 import com.onsite.onsitefaulttracker_v2.model.Record;
-import com.onsite.onsitefaulttracker.util.ThreadFactoryUtil;
+import com.onsite.onsitefaulttracker_v2.util.ThreadFactoryUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -57,7 +57,7 @@ public class BitmapSaveUtil {
         Error
     }
 
-    private AtomicInteger count;
+    private Record mRecord; // Initialize record to the current record
 
     private Calendar mCal = Calendar.getInstance();
     private TimeZone mTz = mCal.getTimeZone();
@@ -91,7 +91,7 @@ public class BitmapSaveUtil {
      */
     private BitmapSaveUtil(final Context context) {
         mContext = context;
-        count = new AtomicInteger(0);
+
         mCal = Calendar.getInstance();
         mTz = mCal.getTimeZone();
         ThreadFactoryUtil factory = new ThreadFactoryUtil("message", NORM_PRIORITY);
@@ -128,7 +128,7 @@ public class BitmapSaveUtil {
 
         SimpleDateFormat millisecondFormat =  new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(FILE_DATE_FORMAT);
-
+        mRecord = RecordUtil.sharedInstance().getCurrentRecord();
         long timeDelta = BLTManager.sharedInstance().getTimeDelta();
 
         long timeNow = System.currentTimeMillis();
@@ -138,16 +138,17 @@ public class BitmapSaveUtil {
         Log.d(TAG, "Time Corrected: " + correctedDate.toString());
         //String halfAppend = "";
         //boolean useHalfAppend = (SettingsUtil.sharedInstance().getPictureFrequency() % 1000 > 0);
-        totalBitMapCount++;
-        int count = totalBitMapCount;
-        //String.format("%06d", count);
-        String bitmapCount = String.format("%06d", count);
+        //totalBitMapCount++;
+        int count = mRecord.photoCount;
+        totalBitMapCount = ++count;
+        String bitmapCount = String.format("%06d", totalBitMapCount);
 
         final Date systemTime = new Date(timeNow);
         String correctedDateString = simpleDateFormat.format(correctedDate);
         final String mesageDateString = millisecondFormat.format(systemTime);
 
-        String cameraIdPrefix = SettingsUtil.sharedInstance().getCameraId();
+        String cameraIdPrefix = SettingsUtil.sharedInstance().getCameraId()
+                + SettingsUtil.sharedInstance().getCameraOri();
         if (cameraIdPrefix == null) {
             cameraIdPrefix = "NOID";
         }
@@ -297,6 +298,7 @@ public class BitmapSaveUtil {
         messageString.append(file + "|");
         messageString.append(saveTime + "|");
         messageString.append(frequency + "|");
+        //messageString.append(SettingsUtil.sharedInstance().getCameraOri() + "|");
         messageString.append(jpegBytes + ",");
         String message = messageString.toString();
         Log.d(TAG, "String builder path: " +  message);

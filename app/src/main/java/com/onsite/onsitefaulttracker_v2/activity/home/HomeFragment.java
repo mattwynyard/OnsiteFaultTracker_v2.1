@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,12 +32,11 @@ import com.onsite.onsitefaulttracker_v2.connectivity.BLTManager;
 import com.onsite.onsitefaulttracker_v2.connectivity.TcpConnection;
 import com.onsite.onsitefaulttracker_v2.model.Record;
 import com.onsite.onsitefaulttracker_v2.model.notifcation_events.BLTConnectedNotification;
+import com.onsite.onsitefaulttracker_v2.model.notifcation_events.BLTDiscoveryFinishedNotification;
+import com.onsite.onsitefaulttracker_v2.model.notifcation_events.BLTDiscoveryStartedNotification;
 import com.onsite.onsitefaulttracker_v2.model.notifcation_events.BLTNotConnectedNotification;
 import com.onsite.onsitefaulttracker_v2.model.notifcation_events.BLTStartRecordingEvent;
-import com.onsite.onsitefaulttracker_v2.model.notifcation_events.UsbConnectedNotification;
-import com.onsite.onsitefaulttracker_v2.model.notifcation_events.UsbDisconnectedNotification;
-
-import com.onsite.onsitefaulttracker_v2.model.notifcation_events.BLTListeningNotification;
+import com.onsite.onsitefaulttracker_v2.model.notifcation_events.BLTConnectingNotification;
 
 import com.onsite.onsitefaulttracker_v2.util.BatteryUtil;
 import com.onsite.onsitefaulttracker_v2.util.BusNotificationUtil;
@@ -184,10 +184,7 @@ public class HomeFragment extends BaseFragment {
             }
 
             enableBluetooth();
-            if (SettingsUtil.sharedInstance().getCameraId() !=  "") {
-                mCamera = SettingsUtil.sharedInstance().getCameraId();
-                setBTName();
-            }
+            setBTName();
         }
         return view;
     }
@@ -279,81 +276,13 @@ public class HomeFragment extends BaseFragment {
      * Creates an Intent if bluetooth is not enables otherwise starts a bluetooth advert.
      */
     public void enableBluetooth() {
-        //Bluetooth not enabled
+
         if (!BLTManager.sharedInstance().isBluetoothEnabled()) {
             Log.i(TAG, "Enabling bluetooth");
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
         } else {
             Log.i(TAG, "Bluetooth Enabled");
-            Log.i(TAG, "Starting BT advertisement");
-            startAdvertising();
-        }
-    }
-
-    /**
-     * Creates an Intent to enable a bluetooth advert for 1000 seconds
-     */
-    //TODO Temp hack should be moved to BLTManager
-    public void startAdvertising() {
-        if (BLTManager.sharedInstance().isBluetoothEnabled() && !mAdvertising) {
-            Intent discoverableIntent =
-                    new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, BT_TIMEOUT);
-            discoverableIntent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
-            //TODO fix for Android 9 issue with discoverable intent
-            startActivityForResult(discoverableIntent, REQUEST_ENABLE_DISCOVERY);
-        } else {
-            Log.i(TAG, "Bluetooth Not Enabled");
-        }
-    }
-
-    private void startBluetooth() {
-        if (BLTManager.sharedInstance().getState() == BLTManager.STATE_NONE &&
-                BLTManager.sharedInstance().isBluetoothEnabled()) {
-            if (mAdvertising) {
-                BLTManager.sharedInstance().start();
-                Log.i(TAG, "Starting listen");
-            }
-        }
-
-    }
-
-
-
-    /**
-     * Captures users selection results from pop-up message window
-     * @param requestCode - the type of service requested
-     * @param resultCode - the result from the user, usually ok/cancel or yes/no
-     * @param data - a Intent carrying the result data
-     */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.i(TAG, "Request code " + requestCode);
-        if (requestCode == REQUEST_ENABLE_BT) {
-            if (resultCode == Activity.RESULT_OK) {
-                Log.i(TAG, "Starting BT advertisement");
-                startAdvertising();
-            } else {
-                Log.i(TAG, "Bluetooth not enabled");
-                BLTManager.sharedInstance().setState(BLTManager.STATE_NOTENABLED);
-
-            }
-        } else if (requestCode == REQUEST_ENABLE_DISCOVERY) {
-            Log.i(TAG, "Result code " + resultCode);
-            //temp hack to enable bluetooth on Huawei
-            if (resultCode == BT_TIMEOUT || resultCode == 120) { //user selected OK
-                Log.i(TAG, "Advertising accept");
-                mAdvertising = true;
-                BusNotificationUtil.sharedInstance().postNotification(new BLTListeningNotification());
-                setBTName();
-                startBluetooth();
-                //startGPS();
-            } else {
-                mAdvertising = false;
-                BusNotificationUtil.sharedInstance().postNotification(new BLTNotConnectedNotification());
-                setBTName();
-            }
         }
     }
 
@@ -373,6 +302,7 @@ public class HomeFragment extends BaseFragment {
                 == PackageManager.PERMISSION_GRANTED) {
             mSerialNumber = Build.getSerial();
             Log.d(TAG, "Serial number: " + mSerialNumber);
+
             return true;
 
         } else {
@@ -398,7 +328,7 @@ public class HomeFragment extends BaseFragment {
                     }
                 } else {
                     Log.d(TAG, "Need phone permission");
-
+                    requestCameraPermission();
                 }
                 return;
         }
@@ -466,48 +396,54 @@ public class HomeFragment extends BaseFragment {
         if (requestStoragePermission()) {
             return;
         }
-
         if (getActivity().checkSelfPermission(Manifest.permission.READ_PHONE_STATE)
                 == PackageManager.PERMISSION_GRANTED) {
             mSerialNumber = Build.getSerial();
             Log.d(TAG, "Serial number: " + mSerialNumber);
+            if (SettingsUtil.sharedInstance().getCameraId() == "") {
+                mCamera = getCameraId();
+                SettingsUtil.sharedInstance().setCameraId(mCamera);
+            } else {
+                mCamera = SettingsUtil.sharedInstance().getCameraId();
+            }
+        }
+
+        if (TextUtils.isEmpty(SettingsUtil.sharedInstance().getCameraOri())) {
+            new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.must_set_camera_ori_title))
+                .setMessage(getString(R.string.must_set_camera_ori_message))
+                .setPositiveButton(getString(R.string.open_settings_button), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (mListener != null) {
+                                mListener.onOpenSettings();
+                            }
+                    }
+                    })
+                .setNegativeButton(getString(R.string.cancel), null)
+                .show();
+            return;
+        }
+
+        if (TextUtils.isEmpty(SettingsUtil.sharedInstance().getComputerId())) {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(getString(R.string.must_set_computer_id_title))
+                    .setMessage(getString(R.string.must_set_camera_id_message))
+                    .setPositiveButton(getString(R.string.open_settings_button), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (mListener != null) {
+                                mListener.onOpenSettings();
+                            }
+                        }
+                    })
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .show();
+            return;
         }
 
         checkForExistingRecords();
 
-//        if (TextUtils.isEmpty(SettingsUtil.sharedInstance().getCameraId())) {
-//            new AlertDialog.Builder(getActivity())
-//                .setTitle(getString(R.string.must_set_camera_id_title))
-//                .setMessage(getString(R.string.must_set_camera_id_message))
-//                .setPositiveButton(getString(R.string.open_settings_button), new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            if (mListener != null) {
-//                                mListener.onOpenSettings();
-//                            }
-//                    }
-//                    })
-//                .setNegativeButton(getString(R.string.cancel), null)
-//                .show();
-//            return;
-//        }
-
-
-//        if (BatteryUtil.sharedInstance().isChargerConnected()) {
-//            checkForExistingRecords();
-//        } else {
-//            new AlertDialog.Builder(getActivity())
-//                    .setTitle(getString(R.string.charger_not_connected_title))
-//                    .setMessage(getString(R.string.charger_not_connected_message))
-//                    .setPositiveButton(getString(R.string.continue_anyway), new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            checkForExistingRecords();
-//                        }
-//                    })
-//                    .setNegativeButton(getString(R.string.cancel), null)
-//                    .show();
-//        }
     }
 
     /**
@@ -625,63 +561,12 @@ public class HomeFragment extends BaseFragment {
         if (bluetooth) {
             mListener.onNewRecord();
         }
-
-//
-//        final AlertDialog d = new AlertDialog.Builder(getActivity())
-//                .setTitle(getString(R.string.new_record_dialog_title))
-//                .setMessage(String.format(getString(R.string.new_record_dialog_message), todaysDisplayDate))
-//                .setView(recordNameLayout)
-//                .setPositiveButton(getString(android.R.string.ok), null)
-//                .setNegativeButton(getString(android.R.string.cancel), null)
-//                .create();
-//
-//        recordNameInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//            @Override
-//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-//                if (!TextUtils.isEmpty(recordNameInput.getText().toString())) {
-//                    createRecord(recordNameInput.getText().toString());
-//                    d.dismiss();
-//                } else {
-//                    showNameMustBeEntered();
-//                }
-//                return true;
-//            }
-//        });
-//
-//        // Set action on button clicks,  This is so the default button click action
-//        d.setOnShowListener(new DialogInterface.OnShowListener() {
-//            @Override
-//            public void onShow(DialogInterface dialog) {
-//                Button positiveButton = d.getButton(AlertDialog.BUTTON_POSITIVE);
-//                positiveButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        if (!TextUtils.isEmpty(recordNameInput.getText().toString())) {
-//                            createRecord(recordNameInput.getText().toString());
-//                            d.dismiss();
-//                        } else {
-//                            showNameMustBeEntered();
-//                        }
-//                    }
-//                });
-//            }
-//        });
-//        d.show();
-//
-//        // Show the keyboard as the name dialog pops up
-//        ThreadUtil.executeOnMainThreadDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                InputMethodManager keyboard = (InputMethodManager)
-//                        getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//                keyboard.showSoftInput(recordNameInput, 0);
-//            }
-//        }, 300);
     }
 
     private void setBTName() {
-        String btname = "OnSite_BLT_Adapter_" + mCamera;
-        BLTManager.sharedInstance().setBTName(btname);
+
+        String btname = "Onsite_" + mCamera;
+        BLTManager.sharedInstance().intializeDiscovery(btname);
     }
 
     /**
@@ -756,7 +641,7 @@ public class HomeFragment extends BaseFragment {
      * @param event
      */
     @Subscribe
-    public void onBLTListeningEvent(BLTListeningNotification event) {
+    public void onBLTConnectingEvent(BLTConnectingNotification event) {
         // Set connection status text to connected
         mConnectionStatusTextView.setText(getString(R.string.BTconnecting));
     }
@@ -770,6 +655,29 @@ public class HomeFragment extends BaseFragment {
     public void onBLTNotConnectedEvent(BLTNotConnectedNotification event) {
         // Set connection status text to connected
         mConnectionStatusTextView.setText(getString(R.string.BTnotConnected));
+    }
+
+
+    /**
+     * Notification when bluetooth started discovery
+     *
+     * @param event
+     */
+    @Subscribe
+    public void onBLTDiscoveryStarted(BLTDiscoveryStartedNotification event) {
+        // Set connection status text to connected
+        mConnectionStatusTextView.setText(getString(R.string.BTconnecting));
+    }
+
+    /**
+     * Notification when bluetooth finished discovery
+     *
+     * @param event
+     */
+    @Subscribe
+    public void onBLTDiscoveryFinished(BLTDiscoveryFinishedNotification event) {
+        // Set connection status text to connected
+        mConnectionStatusTextView.setText(getString(R.string.BTconnecting));
     }
 
     /**
@@ -787,28 +695,28 @@ public class HomeFragment extends BaseFragment {
 //        }
     }
 
-
-    /**
-     * Event from when user elects to pause recording
-     *
-     * @param event
-     */
-    @Subscribe
-    public void onUsbConnectedEvent(UsbConnectedNotification event) {
-        // Set connection status text to connected
-        mConnectionStatusTextView.setText(getString(R.string.connected));
-    }
-
-    /**
-     * Event from when user elects to resume recording
-     *
-     * @param event
-     */
-    @Subscribe
-    public void onUsbDisconnectedEvent(UsbDisconnectedNotification event) {
-        // Set connection status text to disconnected
-        mConnectionStatusTextView.setText(getString(R.string.not_connected));
-    }
+//
+//    /**
+//     * Event from when user elects to pause recording
+//     *
+//     * @param event
+//     */
+//    @Subscribe
+//    public void onUsbConnectedEvent(UsbConnectedNotification event) {
+//        // Set connection status text to connected
+//        mConnectionStatusTextView.setText(getString(R.string.connected));
+//    }
+//
+//    /**
+//     * Event from when user elects to resume recording
+//     *
+//     * @param event
+//     */
+//    @Subscribe
+//    public void onUsbDisconnectedEvent(UsbDisconnectedNotification event) {
+//        // Set connection status text to disconnected
+//        mConnectionStatusTextView.setText(getString(R.string.not_connected));
+//    }
 
 
 

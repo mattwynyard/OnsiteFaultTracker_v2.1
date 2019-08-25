@@ -70,8 +70,20 @@ public class SettingsFragment extends BaseFragment implements SettingItem.Listen
     // The camera Id edit text view
     private TextView mCameraIdTextView;
 
+    // The camera orientation edit text view
+    private TextView mCameraOriTextView;
+
+    // The computer Id edit text view
+    private TextView mComputerIdTextView;
+
     // The camera id of this device
     private String mCameraId;
+
+    // The camera orientation of this device
+    private String mCameraOri;
+
+    // The camera id of this device
+    private String mComputerId;
 
     // frequency setting item
     private SettingItem mFrequencyItem;
@@ -165,6 +177,24 @@ public class SettingsFragment extends BaseFragment implements SettingItem.Listen
                 }
             });
 
+            mCameraOriTextView = (TextView)view.findViewById(R.id.camera_ori_edit_text);
+            mCameraOriTextView.setClickable(true);
+            mCameraOriTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showChangeCameraOriTextView();
+                }
+            });
+
+            mComputerIdTextView = (TextView)view.findViewById(R.id.computer_id_edit_text);
+            mComputerIdTextView.setClickable(true);
+            mComputerIdTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showChangeComputerIdTextView();
+                }
+            });
+
             mRequiredStorageTextView = (TextView)view.findViewById(R.id.required_storage_text_view);
             mAvailableStorageTextView = (TextView)view.findViewById(R.id.available_storage_text_view);
 
@@ -216,6 +246,8 @@ public class SettingsFragment extends BaseFragment implements SettingItem.Listen
     private void setInitialValues() {
         SettingsUtil.sharedInstance().resetSettings();
         mCameraId = SettingsUtil.sharedInstance().getCameraId();
+        mCameraOri = SettingsUtil.sharedInstance().getCameraOri();
+        mComputerId = SettingsUtil.sharedInstance().getComputerId();
         mFrequencyMilliseconds = SettingsUtil.sharedInstance().getPictureFrequency();
         mImageSize = SettingsUtil.sharedInstance().getImageSize();
         mRecordingHours = SettingsUtil.sharedInstance().getRecordingHours();
@@ -234,6 +266,12 @@ public class SettingsFragment extends BaseFragment implements SettingItem.Listen
         // Update the value text views
         if (!TextUtils.isEmpty(mCameraId)) {
             mCameraIdTextView.setText(mCameraId);
+        }
+        if (!TextUtils.isEmpty(mCameraOri)) {
+            mCameraOriTextView.setText(mCameraOri);
+        }
+        if (!TextUtils.isEmpty(mComputerId)) {
+            mComputerIdTextView.setText(mComputerId);
         }
         updateFrequencyTextView(mFrequencyMilliseconds);
         updateImageSizeTextView(mImageSize);
@@ -468,6 +506,142 @@ public class SettingsFragment extends BaseFragment implements SettingItem.Listen
             .setMessage(getString(R.string.must_set_camera_id_message))
             .setPositiveButton(getString(android.R.string.ok), null)
             .show();
+    }
+
+    /**
+     * Show the change camera id dialog
+     */
+    private void showChangeCameraOriTextView() {
+        final RelativeLayout changeCameraOriLayout = new RelativeLayout(getActivity());
+
+        final EditText changeCameraOriInput = new EditText(getActivity());
+        changeCameraOriInput.setHint(R.string.camera_ori_hint);
+        RelativeLayout.LayoutParams changeCameraOriParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        changeCameraOriParams.leftMargin = getResources().getDimensionPixelSize(R.dimen.new_record_name_text_margin);
+        changeCameraOriParams.rightMargin = getResources().getDimensionPixelSize(R.dimen.new_record_name_text_margin);
+        changeCameraOriInput.setLayoutParams(changeCameraOriParams);
+        changeCameraOriInput.setSingleLine();
+        changeCameraOriInput.setInputType(InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
+        changeCameraOriInput.setText(SettingsUtil.sharedInstance().getCameraOri());
+        changeCameraOriLayout.addView(changeCameraOriInput);
+
+        final AlertDialog d = new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.set_camera_ori_title))
+                .setMessage(getString(R.string.set_camera_ori_message))
+                .setView(changeCameraOriLayout)
+                .setPositiveButton(getString(android.R.string.ok), null)
+                .setNegativeButton(getString(android.R.string.cancel), null)
+                .create();
+
+        // Set action on button clicks,  This is so the default button click action
+        d.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                Button positiveButton = d.getButton(AlertDialog.BUTTON_POSITIVE);
+                positiveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (!TextUtils.isEmpty(changeCameraOriInput.getText().toString())) {
+                            SettingsUtil.sharedInstance().setCameraOri(changeCameraOriInput.getText().toString());
+                            mCameraOriTextView.setText(changeCameraOriInput.getText().toString());
+                            d.dismiss();
+                        } else {
+                            showCameraOriMustBeEntered();
+                        }
+                    }
+                });
+            }
+        });
+        d.show();
+
+        // Show the keyboard as the name dialog pops up
+        ThreadUtil.executeOnMainThreadDelayed(new Runnable() {
+            @Override
+            public void run() {
+                InputMethodManager keyboard = (InputMethodManager)
+                        getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                keyboard.showSoftInput(changeCameraOriInput, 0);
+            }
+        }, 300);
+    }
+
+    /**
+     * Show a dialog notifying the user that they must enter a name for the record
+     */
+    private void showCameraOriMustBeEntered() {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.must_set_camera_ori_title))
+                .setMessage(getString(R.string.must_set_camera_ori_message))
+                .setPositiveButton(getString(android.R.string.ok), null)
+                .show();
+    }
+
+    /**
+     * Show the change camera id dialog
+     */
+    private void showChangeComputerIdTextView() {
+        final RelativeLayout changeComputerIdLayout = new RelativeLayout(getActivity());
+
+        final EditText changeComputerIdInput = new EditText(getActivity());
+        changeComputerIdInput.setHint(R.string.computer_id_hint);
+        RelativeLayout.LayoutParams changeComputerIdParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        changeComputerIdParams.leftMargin = getResources().getDimensionPixelSize(R.dimen.new_record_name_text_margin);
+        changeComputerIdParams.rightMargin = getResources().getDimensionPixelSize(R.dimen.new_record_name_text_margin);
+        changeComputerIdInput.setLayoutParams(changeComputerIdParams);
+        changeComputerIdInput.setSingleLine();
+        changeComputerIdInput.setInputType(InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
+        changeComputerIdInput.setText(SettingsUtil.sharedInstance().getComputerId());
+        changeComputerIdLayout.addView(changeComputerIdInput);
+
+        final AlertDialog d = new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.set_computer_id_title))
+                .setMessage(getString(R.string.set_computer_id_message))
+                .setView(changeComputerIdLayout)
+                .setPositiveButton(getString(android.R.string.ok), null)
+                .setNegativeButton(getString(android.R.string.cancel), null)
+                .create();
+
+        // Set action on button clicks,  This is so the default button click action
+        d.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                Button positiveButton = d.getButton(AlertDialog.BUTTON_POSITIVE);
+                positiveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (!TextUtils.isEmpty(changeComputerIdInput.getText().toString())) {
+                            SettingsUtil.sharedInstance().setComputerId(changeComputerIdInput.getText().toString());
+                            mComputerIdTextView.setText(changeComputerIdInput.getText().toString());
+                            d.dismiss();
+                        } else {
+                            showComputerIdMustBeEntered();
+                        }
+                    }
+                });
+            }
+        });
+        d.show();
+
+        // Show the keyboard as the name dialog pops up
+        ThreadUtil.executeOnMainThreadDelayed(new Runnable() {
+            @Override
+            public void run() {
+                InputMethodManager keyboard = (InputMethodManager)
+                        getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                keyboard.showSoftInput(changeComputerIdInput, 0);
+            }
+        }, 300);
+    }
+
+    /**
+     * Show a dialog notifying the user that they must enter a name for the record
+     */
+    private void showComputerIdMustBeEntered() {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.must_set_computer_id_title))
+                .setMessage(getString(R.string.must_set_computer_id_message))
+                .setPositiveButton(getString(android.R.string.ok), null)
+                .show();
     }
 
 

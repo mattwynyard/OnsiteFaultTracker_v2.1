@@ -488,9 +488,9 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
         if (mRecording) {
             Log.i(TAG, "Stop recording called");
             mRecording = false;
-            if (BLTManager.sharedInstance().getState() == 3) {
-                BLTManager.sharedInstance().sendMessge("NOTRECORDING,");
-            }
+//            if (BLTManager.sharedInstance().getState() == 3) {
+//                BLTManager.sharedInstance().sendMessge("NOTRECORDING,");
+//            }
             //MessageUtil.sharedInstance().setRecording(true);
             //BLTManager.sharedInstance().sendMessage("NOTRECORDING,");
             //BLTManager.sharedInstance().setRecording(false);

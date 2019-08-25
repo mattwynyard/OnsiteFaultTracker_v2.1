@@ -15,9 +15,11 @@
     <string name="not_connected">Usb connection not initialized</string>
     <string name="connected">Usb connected</string>
     <string name="BTconnected">Bluetooth connected</string>
-    <string name="BTconnecting">Bluetooth waiting for connection</string>
+    <string name="BTconnecting">Bluetooth connecting...</string>
     <string name="BTnotConnected">Bluetooth not connected</string>
     <string name="BTnotEnabled">Bluetooth not enabled</string>
+    <string name="BTdiscovery_started">Bluetooth discovery started</string>
+    <string name="BTdiscovery_finished">Bluetooth discovery finished</string>
 
     <string name="charger_not_connected_title">Warning</string>
     <string name="charger_not_connected_message">The charger is not connected, it is highly recommended you connect the charger before continuing</string>
@@ -38,12 +40,26 @@
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
     <string name="settings_camera_id_title">Camera Id</string>
+    <string name="settings_camera_ori_title">Camera Direction</string>
+    <string name="settings_computer_id_title">Computer Name</string>
     <string name="set_camera_id_title">Set camera Id</string>
     <string name="set_camera_id_message">Enter the camera Id for this device</string>
     <string name="must_set_camera_id_title">Camera Id required</string>
     <string name="must_set_camera_id_message">A camera Id must be entered in order to create a record</string>
+    <string name="set_camera_ori_title">Set camera direction</string>
+    <string name="set_camera_ori_message">Enter the camera direction for this device</string>
+    <string name="must_set_camera_ori_title">Camera direction required</string>
+    <string name="must_set_camera_ori_message">A camera direction must be entered in order to create a record</string>
+    <string name="set_computer_id_title">Set computer name</string>
+    <string name="set_computer_id_message">Enter the computer name this device should connect to</string>
+    <string name="must_set_computer_id_title">Computer name required required</string>
+    <string name="must_set_computer_id_message">A computer name must be entered in order to create a record</string>
     <string name="tap_camera_id">Tap to set camera Id</string>
+    <string name="tap_camera_ori">Tap to set camera direction</string>
+    <string name="tap_computer_id">Tap to set computer name</string>
     <string name="camera_id_hint">Camera Id</string>
+    <string name="camera_ori_hint">Camera direction</string>
+    <string name="computer_id_hint">Computer name</string>
     <string name="setting_frequency_title">Picture frequency</string>
     <string name="setting_frequency_value">%.1f seconds</string>
     <string name="setting_image_size_title">Image size</string>
