@@ -46,6 +46,9 @@ public class SettingsUtil {
     // The id of the current camera
     private static final String KEY_COMPUTER_ID = "computer_id";
 
+    // The id of the current camera
+    private static final String KEY_BLUETOOTH = "bluetooth";
+
     // The default value for picture frequency
     private static final long DEFAULT_PICTURE_FREQUENCY = 1000;
 
@@ -107,6 +110,9 @@ public class SettingsUtil {
     // The computer this device will connect to
     private String mComputerId;
 
+    // The whether bluetooth is enabled
+    private String mBluetooth;
+
     // The application context
     private Context mContext;
 
@@ -159,6 +165,7 @@ public class SettingsUtil {
         mCameraId = sharedPreferences.getString(KEY_CAMERA_ID, "");
         mCameraOri = sharedPreferences.getString(KEY_CAMERA_ORI, "");
         mComputerId = sharedPreferences.getString(KEY_COMPUTER_ID, "");
+        mBluetooth = sharedPreferences.getString(KEY_BLUETOOTH, "YES");
         mFrameDuration = sharedPreferences.getLong(KEY_FRAME_DURATION_PERCENTAGE, DEFAULT_FRAME_DURATION_PERCENTAGE);
         mFocusDistance = sharedPreferences.getFloat(KEY_FOCUS_DISTANCE, DEFAULT_FOCUS_DISTANCE);
     }
@@ -358,6 +365,19 @@ public class SettingsUtil {
     }
 
     /**
+     * Set whether bluetooth is enabled
+     *
+     * @param bluetooth The camera id to set this device to
+     */
+    public void setBluetooth(final String bluetooth) {
+        mBluetooth = bluetooth;
+        SharedPreferences preferences = mContext.getSharedPreferences(SETTINGS_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(KEY_BLUETOOTH, mBluetooth);
+        editor.apply();
+    }
+
+    /**
      * Get the camera Id
      *
      * @return the camera id of this device
@@ -382,5 +402,14 @@ public class SettingsUtil {
      */
     public String getComputerId() {
         return mComputerId;
+    }
+
+    /**
+     * Get the camera Ori
+     *
+     * @return the camera id of this device
+     */
+    public String getBluetooth() {
+        return mBluetooth;
     }
 }

@@ -126,6 +126,42 @@
 
         </RelativeLayout>
 
+        <RelativeLayout
+            android:id="@+id/bluetooth_setting_layout"
+            android:layout_width="match_parent"
+            android:layout_height="51dp">
+
+            <TextView
+                android:id="@+id/bluetooth_edit_text"
+                android:layout_width="@dimen/settings_text_view_width"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/setting_item_horizontal_padding"
+                android:layout_marginEnd="@dimen/setting_item_horizontal_padding"
+                android:text="@string/tap_bluetooth" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:paddingStart="@dimen/setting_item_horizontal_padding"
+                android:paddingEnd="@dimen/setting_item_horizontal_padding"
+                android:text="@string/settings_bluetooth_title"
+                android:textColor="@color/text_dark" />
+
+            <View
+                android:id="@+id/bluetooth_bottom_divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="@dimen/setting_divider_horizontal_padding"
+                android:layout_marginEnd="@dimen/setting_divider_horizontal_padding"
+                android:background="@color/divider_color" />
+
+        </RelativeLayout>
+
         <include layout="@layout/setting_item_layout"
             android:id="@+id/frequency_setting_layout"
             android:layout_width="match_parent"

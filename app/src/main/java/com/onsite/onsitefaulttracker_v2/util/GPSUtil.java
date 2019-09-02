@@ -81,10 +81,6 @@ public class GPSUtil implements LocationListener {
     private boolean mFix;
     private int mSatellites;
 
-    private ThreadPoolExecutor mThreadPoolExecutor;
-    private ArrayBlockingQueue<Runnable> queue;
-
-
     /**
      * initializes GPSUtil.
      *
@@ -104,6 +100,7 @@ public class GPSUtil implements LocationListener {
         mContext = applicationContext;
         mLocationManager = (LocationManager)
                 mContext.getSystemService(Context.LOCATION_SERVICE);
+
         if (ActivityCompat.checkSelfPermission(this.mContext,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -115,15 +112,6 @@ public class GPSUtil implements LocationListener {
             // for ActivityCompat#requestPermissions for more details.
             //return;
         }
-        //mLocationManager.addNmeaListener(mNmeaListener);
-        //mThreadPool = ThreadUtil.threadPool(5);
-//        com.onsite.onsitefaulttracker.util.ThreadFactoryUtil factory = new com.onsite.onsitefaulttracker.util.ThreadFactoryUtil("geotag");
-//        //mThreadPool  = Executors.newFixedThreadPool(10);
-//        queue = new ArrayBlockingQueue<Runnable>(10);
-//        mThreadPoolExecutor = new ThreadPoolExecutor(5, 20, 60, TimeUnit.SECONDS,
-//                queue, factory,
-//                new ThreadPoolExecutor.CallerRunsPolicy());
-
         checkGPS();
     }
 
@@ -167,6 +155,8 @@ public class GPSUtil implements LocationListener {
             } else {
                 //Log.d(TAG, "Location Manager Null");
             }
+            Log.d(TAG, "Latitude: " + latitude);
+            Log.d(TAG, "Longitude: " + longitude);
             mLocation = location;
 
         }
@@ -211,8 +201,6 @@ public class GPSUtil implements LocationListener {
             criteria.setPowerRequirement(Criteria.POWER_HIGH);
             criteria.setAltitudeRequired(true);
             criteria.setSpeedRequired(false);
-            //criteria.setCostAllowed(true);
-
             criteria.setBearingRequired(true);
 
             mLocationManager.requestLocationUpdates(

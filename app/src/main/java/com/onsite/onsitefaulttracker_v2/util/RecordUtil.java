@@ -187,6 +187,7 @@ public class RecordUtil {
         }
 
         mCurrentRecord = newRecord;
+        updateRecordCount();
         saveCurrentRecord();
         return true;
     }

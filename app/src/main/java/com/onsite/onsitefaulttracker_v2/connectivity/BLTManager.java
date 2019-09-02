@@ -131,6 +131,7 @@ public class BLTManager {
 
     public void startDiscovery() {
         Log.i(TAG, "Starting discovery");
+        setState(STATE_DISCOVERY_STARTED);
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
@@ -167,7 +168,7 @@ public class BLTManager {
             }
             if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
                 Log.d(TAG, "onResume: Discovery Started");
-                setState(STATE_DISCOVERY_STARTED);
+                //setState(STATE_DISCOVERY_STARTED);
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 Log.d(TAG, "onResume: Discovery Finished");
                 setState(STATE_DISCOVERY_FINISHED);
@@ -461,7 +462,7 @@ public class BLTManager {
                             int hour = Integer.valueOf(time[4]);
                             int minute = Integer.valueOf(time[5]);
                             int second = Integer.valueOf(time[6]);
-                            int millisecond = Integer.valueOf(time[7].substring(0, 2));
+                            //int millisecond = Integer.valueOf(time[7].substring(0, 2));
 
                             //Date gpsTime = new Date(year, month - 1, day, hour, minute, second);
                             DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");

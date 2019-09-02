@@ -58,10 +58,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/current_record_date"
-            android:text="@string/not_connected"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/home_text_small_vertical_margin"
-            android:layout_marginBottom="@dimen/home_text_small_vertical_margin"/>
+            android:layout_marginBottom="@dimen/home_text_small_vertical_margin"
+            android:text="@string/BTnotConnected" />
 
         <Button
             android:id="@+id/continue_record_button"

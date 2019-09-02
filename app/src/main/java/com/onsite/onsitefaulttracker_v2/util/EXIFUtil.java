@@ -175,7 +175,7 @@ public class EXIFUtil {
      * @param precision - the multiplier for seconds precision
      * @return the converted coordinate as a string in the exif format
      */
-    private String DMS(double x,  int precision) {
+    public String DMS(double x,  int precision) {
         double d = Math.abs(x);
         int degrees = (int) Math.floor(d);
         int minutes = (int) Math.floor(((d - (double)degrees) * 60));

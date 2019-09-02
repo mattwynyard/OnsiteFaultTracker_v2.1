@@ -76,6 +76,8 @@ public class SettingsFragment extends BaseFragment implements SettingItem.Listen
     // The computer Id edit text view
     private TextView mComputerIdTextView;
 
+    private TextView mBluetoothTextView;
+
     // The camera id of this device
     private String mCameraId;
 
@@ -84,6 +86,9 @@ public class SettingsFragment extends BaseFragment implements SettingItem.Listen
 
     // The camera id of this device
     private String mComputerId;
+
+    // The enable bluetooth
+    private String mBluetooth;
 
     // frequency setting item
     private SettingItem mFrequencyItem;
@@ -195,6 +200,17 @@ public class SettingsFragment extends BaseFragment implements SettingItem.Listen
                 }
             });
 
+
+            mBluetoothTextView = (TextView)view.findViewById(R.id.bluetooth_edit_text);
+            mBluetoothTextView .setClickable(true);
+            mBluetoothTextView .setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showChangeBluetoothTextView();
+                }
+            });
+
+
             mRequiredStorageTextView = (TextView)view.findViewById(R.id.required_storage_text_view);
             mAvailableStorageTextView = (TextView)view.findViewById(R.id.available_storage_text_view);
 
@@ -248,6 +264,7 @@ public class SettingsFragment extends BaseFragment implements SettingItem.Listen
         mCameraId = SettingsUtil.sharedInstance().getCameraId();
         mCameraOri = SettingsUtil.sharedInstance().getCameraOri();
         mComputerId = SettingsUtil.sharedInstance().getComputerId();
+        mBluetooth = SettingsUtil.sharedInstance().getBluetooth();
         mFrequencyMilliseconds = SettingsUtil.sharedInstance().getPictureFrequency();
         mImageSize = SettingsUtil.sharedInstance().getImageSize();
         mRecordingHours = SettingsUtil.sharedInstance().getRecordingHours();
@@ -272,6 +289,9 @@ public class SettingsFragment extends BaseFragment implements SettingItem.Listen
         }
         if (!TextUtils.isEmpty(mComputerId)) {
             mComputerIdTextView.setText(mComputerId);
+        }
+        if (!TextUtils.isEmpty(mComputerId)) {
+            mBluetoothTextView.setText(mBluetooth);
         }
         updateFrequencyTextView(mFrequencyMilliseconds);
         updateImageSizeTextView(mImageSize);
@@ -610,8 +630,10 @@ public class SettingsFragment extends BaseFragment implements SettingItem.Listen
                     @Override
                     public void onClick(View view) {
                         if (!TextUtils.isEmpty(changeComputerIdInput.getText().toString())) {
-                            SettingsUtil.sharedInstance().setComputerId(changeComputerIdInput.getText().toString());
-                            mComputerIdTextView.setText(changeComputerIdInput.getText().toString());
+                            String computerID  = changeComputerIdInput.getText().toString();
+                            computerID = computerID.trim();
+                            SettingsUtil.sharedInstance().setComputerId(computerID);
+                            mComputerIdTextView.setText(computerID);
                             d.dismiss();
                         } else {
                             showComputerIdMustBeEntered();
@@ -640,6 +662,76 @@ public class SettingsFragment extends BaseFragment implements SettingItem.Listen
         new AlertDialog.Builder(getActivity())
                 .setTitle(getString(R.string.must_set_computer_id_title))
                 .setMessage(getString(R.string.must_set_computer_id_message))
+                .setPositiveButton(getString(android.R.string.ok), null)
+                .show();
+    }
+
+    /**
+     * Show the change camera id dialog
+     */
+    private void showChangeBluetoothTextView() {
+        final RelativeLayout changeBluetoothLayout = new RelativeLayout(getActivity());
+
+        final EditText changeBluetoothInput = new EditText(getActivity());
+        changeBluetoothInput.setHint(R.string.bluetooth_hint);
+        RelativeLayout.LayoutParams changeBluetoothParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        changeBluetoothParams.leftMargin = getResources().getDimensionPixelSize(R.dimen.new_record_name_text_margin);
+        changeBluetoothParams.rightMargin = getResources().getDimensionPixelSize(R.dimen.new_record_name_text_margin);
+        changeBluetoothInput.setLayoutParams(changeBluetoothParams);
+        changeBluetoothInput.setSingleLine();
+        changeBluetoothInput.setInputType(InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
+        changeBluetoothInput.setText(SettingsUtil.sharedInstance().getBluetooth());
+        changeBluetoothLayout.addView(changeBluetoothInput);
+
+        final AlertDialog d = new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.set_bluetooth_title))
+                .setMessage(getString(R.string.set_bluetooth_message))
+                .setView(changeBluetoothLayout)
+                .setPositiveButton(getString(android.R.string.ok), null)
+                .setNegativeButton(getString(android.R.string.cancel), null)
+                .create();
+
+        // Set action on button clicks,  This is so the default button click action
+        d.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                Button positiveButton = d.getButton(AlertDialog.BUTTON_POSITIVE);
+                positiveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (!TextUtils.isEmpty(changeBluetoothInput.getText().toString())) {
+                            String bluetooth  = changeBluetoothInput.getText().toString();
+                            bluetooth = bluetooth.trim();
+                            SettingsUtil.sharedInstance().setBluetooth(bluetooth);
+                            mBluetoothTextView.setText(bluetooth);
+                            d.dismiss();
+                        } else {
+                            showBluetoothMustBeEntered();
+                        }
+                    }
+                });
+            }
+        });
+        d.show();
+
+        // Show the keyboard as the name dialog pops up
+        ThreadUtil.executeOnMainThreadDelayed(new Runnable() {
+            @Override
+            public void run() {
+                InputMethodManager keyboard = (InputMethodManager)
+                        getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                keyboard.showSoftInput(changeBluetoothInput, 0);
+            }
+        }, 300);
+    }
+
+    /**
+     * Show a dialog notifying the user that they must enter a name for the record
+     */
+    private void showBluetoothMustBeEntered() {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.must_set_bluetooth_title))
+                .setMessage(getString(R.string.must_set_bluetooth_message))
                 .setPositiveButton(getString(android.R.string.ok), null)
                 .show();
     }

@@ -18,6 +18,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -195,12 +197,19 @@ public class BitmapSaveUtil {
                         return;
                     }
                     sizedBmp.recycle();
-                    final ByteArrayOutputStream photo = new ByteArrayOutputStream();
-                    rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, CalculationUtil
-                            .sharedInstance().estimateQualityValueForImageSize(), fOutputStream);
                     Bitmap resizedBitmap = Bitmap.createScaledBitmap(rotatedBitmap,
                             (int)(rotatedBitmap.getWidth() * THUMBNAIL_REDUCTION),
                             (int)(rotatedBitmap.getHeight() * THUMBNAIL_REDUCTION), true);
+                    final ByteArrayOutputStream photo = new ByteArrayOutputStream();
+                    rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, CalculationUtil
+                            .sharedInstance().estimateQualityValueForImageSize(), fOutputStream);
+
+                    //int bytes = resizedBitmap.getByteCount();
+                    //ByteBuffer buffer = ByteBuffer.allocate(bytes); //Create a new buffer
+                    //resizedBitmap.copyPixelsToBuffer(buffer); //Move the byte data to the buffer
+
+                    //byte[] array = buffer.array(); //Get the underlying array containing the data.
+                    //photo.write(array);
                     resizedBitmap.compress(Bitmap.CompressFormat.JPEG, CalculationUtil
                             .sharedInstance().estimateQualityValueForImageSize(),
                             photo);
@@ -219,14 +228,18 @@ public class BitmapSaveUtil {
                     Log.d(TAG, "Bitmap count: " + totalBitMapCount);
                     totalBitMapTime += (finish - start);
                     Double time = (double)totalBitMapTime / totalBitMapCount;
-                    final Double avgSaveTime = new BigDecimal(time).setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
+                    final Double avgSaveTime = new BigDecimal(time).setScale(1,
+                            BigDecimal.ROUND_HALF_UP).doubleValue();
                     final long frequency = SettingsUtil.sharedInstance().getPictureFrequency();
-                    photo.size();
-
+                    //photo.size();
+                    final String latitude = Double.toString(location.getLatitude());
+                    final String longitude = Double.toString(location.getLongitude());
+                    //Log.d(TAG, "longitude: " + longitude);
                     task1 = new Runnable() {
                         @Override
                         public void run() {
-                            sendMessage(mesageDateString, filename, photo, avgSaveTime, frequency, jpegBytes);
+                            //sendMessage(mesageDateString, filename, photo, avgSaveTime, frequency, jpegBytes);
+                            sendMessage(mesageDateString, filename, photo, latitude, longitude, frequency, jpegBytes);
                         }
                     };
                     task2 = new Runnable() {
@@ -265,11 +278,27 @@ public class BitmapSaveUtil {
         return mThreadPool;
     }
 
+//    private void sendMessage(String date, String filename, ByteArrayOutputStream photo,
+//                             Double saveTime, long frequency, long jpegBytes) {
+//        long start = System.currentTimeMillis();
+//        Log.d(TAG, "JPEG written to disk");
+//        String message = buildMessage(date, filename, saveTime, frequency, jpegBytes);
+//        MessageUtil.sharedInstance().setMessage(message);
+//        MessageUtil.sharedInstance().setPhoto(photo.toByteArray());
+//        int messageLength = MessageUtil.sharedInstance().getMessageLength();
+//        int payload = messageLength + 21 + photo.size();
+//        MessageUtil.sharedInstance().setPayload(payload);
+//        ByteArrayOutputStream m = MessageUtil.sharedInstance().getMessage();
+//        BLTManager.sharedInstance().sendMessge(m);
+//        long finish = System.currentTimeMillis();
+//        Log.d(TAG, "Message send time: " + (finish - start));
+//    }
+
     private void sendMessage(String date, String filename, ByteArrayOutputStream photo,
-                             Double saveTime, long frequency, long jpegBytes) {
+                             String latitude, String longitude, long frequency, long jpegBytes) {
         long start = System.currentTimeMillis();
         Log.d(TAG, "JPEG written to disk");
-        String message = buildMessage(date, filename, saveTime, frequency, jpegBytes);
+        String message = buildMessage(date, filename, latitude, longitude, frequency, jpegBytes);
         MessageUtil.sharedInstance().setMessage(message);
         MessageUtil.sharedInstance().setPhoto(photo.toByteArray());
         int messageLength = MessageUtil.sharedInstance().getMessageLength();
@@ -297,6 +326,32 @@ public class BitmapSaveUtil {
         messageString.append("T:" + dateTime + "|");
         messageString.append(file + "|");
         messageString.append(saveTime + "|");
+        messageString.append(frequency + "|");
+        //messageString.append(SettingsUtil.sharedInstance().getCameraOri() + "|");
+        messageString.append(jpegBytes + ",");
+        String message = messageString.toString();
+        Log.d(TAG, "String builder path: " +  message);
+        return message;
+    }
+
+    /**
+     *  Builds a message string using StringBuilder ready for sending through bluetooth
+     * @param dateTime - a date time stamp the photo was taken
+     * @param file - the filename of the photo
+     * @param latitude - the latitude of the photo in exif format degrees/minutes/seconds
+     * @param longitude - the longitude of the photo in exif format degrees/minutes/seconds
+     * @param frequency - milliseconds (time between photo)
+     * @param jpegBytes - approximate size in bytes of the jpeg photo
+     * @return - a string with relevant data ready to be sent through bluetooth
+     */
+    private String buildMessage(String dateTime, String file, String latitude, String longitude,
+                                long frequency, long jpegBytes) {
+
+        StringBuilder messageString = new StringBuilder();
+        messageString.append("T:" + dateTime + "|");
+        messageString.append(file + "|");
+        messageString.append(latitude + "|");
+        messageString.append(longitude + "|");
         messageString.append(frequency + "|");
         //messageString.append(SettingsUtil.sharedInstance().getCameraOri() + "|");
         messageString.append(jpegBytes + ",");

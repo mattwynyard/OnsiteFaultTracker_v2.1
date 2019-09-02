@@ -202,7 +202,7 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
     @Override
     public void onPause() {
         super.onPause();
-        MessageUtil.sharedInstance().setRecording("N");
+
         Log.i(TAG, "RECORD:PAUSED");
         if (mStartedRecordingTime > 0) {
             long recordedTime = new Date().getTime() - mStartedRecordingTime;
@@ -487,6 +487,8 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
     private void stopRecording() {
         if (mRecording) {
             Log.i(TAG, "Stop recording called");
+            MessageUtil.sharedInstance().setRecording("N");
+            BLTManager.sharedInstance().sendMessge("");
             mRecording = false;
 //            if (BLTManager.sharedInstance().getState() == 3) {
 //                BLTManager.sharedInstance().sendMessge("NOTRECORDING,");
