@@ -48,6 +48,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import static com.onsite.onsitefaulttracker_v2.connectivity.BLTManager.STATE_CONNECTED;
+import static com.onsite.onsitefaulttracker_v2.connectivity.BLTManager.STATE_NOTCONNECTED;
+
 
 /**
  * Created by hihi on 6/7/2016.
@@ -253,7 +256,7 @@ public class HomeFragment extends BaseFragment {
         boolean hasCurrentRecord = RecordUtil.sharedInstance().getCurrentRecord() != null;
         boolean hasRecords = RecordUtil.sharedInstance().getCurrentRecordCount() > 0;
 
-        mContinueRecordButton.setEnabled(hasCurrentRecord);
+        //mContinueRecordButton.setEnabled(hasCurrentRecord);
         mSubmitRecordButton.setEnabled(hasCurrentRecord);
         mPreviousRecordsButton.setEnabled(hasRecords);
         if (hasRecords) {
@@ -261,7 +264,12 @@ public class HomeFragment extends BaseFragment {
         } else {
             mNewRecordButton.setEnabled(true);
         }
-//        if (!mBluetooth) {
+        if (BLTManager.sharedInstance().getState() == STATE_NOTCONNECTED) {
+            mContinueRecordButton.setEnabled(true);
+        } else {
+
+        }
+
 //            mContinueRecordButton.setText();
 //        }
         updateCurrentRecordText();
