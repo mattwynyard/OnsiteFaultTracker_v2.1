@@ -564,7 +564,6 @@ public class HomeFragment extends BaseFragment {
     private void requestRecordName() {
 
         final RelativeLayout recordNameLayout = new RelativeLayout(getActivity());
-
         final EditText recordNameInput = new EditText(getActivity());
         recordNameInput.setHint(R.string.new_record_name_hint);
         RelativeLayout.LayoutParams recordNameParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -729,38 +728,7 @@ public class HomeFragment extends BaseFragment {
         if (RecordUtil.sharedInstance().getCurrentRecord() != null) {
             onContinueButtonClicked();
         }
-//        } else {
-//            onNewRecordClicked();
-//        }
     }
-
-//
-//    /**
-//     * Event from when user elects to pause recording
-//     *
-//     * @param event
-//     */
-//    @Subscribe
-//    public void onUsbConnectedEvent(UsbConnectedNotification event) {
-//        // Set connection status text to connected
-//        mConnectionStatusTextView.setText(getString(R.string.connected));
-//    }
-//
-//    /**
-//     * Event from when user elects to resume recording
-//     *
-//     * @param event
-//     */
-//    @Subscribe
-//    public void onUsbDisconnectedEvent(UsbDisconnectedNotification event) {
-//        // Set connection status text to disconnected
-//        mConnectionStatusTextView.setText(getString(R.string.not_connected));
-//    }
-
-
-
-
-
     /**
      * instantiate and return an instance of this fragment
      *

@@ -174,8 +174,9 @@ public class BLTManager {
                 setState(STATE_DISCOVERY_FINISHED);
                 //TODO create alert
                 if (mRemoteDevice == null) {
-                    startDiscovery();
                     setState(STATE_NOTCONNECTED);
+                    startDiscovery();
+
                     //setState(STATE_NOTCONNECTED);
                 }
             }
@@ -425,13 +426,9 @@ public class BLTManager {
                 mSocket.close();
                 mWriterOut.close();
                 mWriterOut = null;
-                try {
-                    mReadThread.join();
-                    mReadThread = null;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                setState(STATE_NOTCONNECTED);
+                //mReadThread.join();
+                mReadThread = null;
+                startDiscovery();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -490,9 +487,8 @@ public class BLTManager {
                             .postNotification(new BLTStopRecordingEvent());
                     setState(STATE_NOTCONNECTED);
                     mRemoteDevice = null;
-                    startDiscovery();
-                    closeAll();
 
+                    closeAll();
                 }
             }
         }; //end closure

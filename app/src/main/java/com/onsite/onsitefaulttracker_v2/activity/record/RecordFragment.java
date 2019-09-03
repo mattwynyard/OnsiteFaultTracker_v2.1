@@ -604,9 +604,7 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
 
     @Subscribe
     public void onBLTStartRecordingEvent(BLTStartRecordingEvent event) {
-        //HomeFragment.createInstance().onContinueButtonClicked();
-        Log.i(TAG, "Start recording called from BLTEvent");
-
+        Log.d(TAG, "Start recording called from BLTEvent");
         startRecording();
     }
     /**
@@ -616,25 +614,8 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
      */
     @Subscribe
     public void onBLTStopRecordingEvent(BLTStopRecordingEvent event) {
-        Log.i(TAG, "Stop recording called from BLTEvent");
+        Log.d(TAG, "Stop recording called from BLTEvent");
         stopRecording();
-        //getActivity().finish();
         getActivity().onBackPressed();
     }
-
-//    @Subscribe
-//    public void onBLEStopRecordingEvent(BLEStopRecordingEvent event) {
-//        stopRecording();
-//    }
-//
-//    /**
-//     * Event from when user elects to resume recording
-//     *
-//     * @param event
-//     */
-//    @Subscribe
-//    public void onBLEStartRecordingEvent(BLEStartRecordingEvent event) {
-//        startRecording();
-//    }
-
 }
