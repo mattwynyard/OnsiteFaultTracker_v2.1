@@ -180,7 +180,8 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
     @Override
     public void onResume() {
         super.onResume();
-        MessageUtil.sharedInstance().setRecording("R");
+        //BLTManager.sharedInstance().sendMessge("");
+        //MessageUtil.sharedInstance().setRecording("R");
         Log.i(TAG, "RECORD:RESUMED");
         // When the screen is turned off and turned back on, the SurfaceTexture is already
         // available, and "onSurfaceTextureAvailable" will not be called. In that case, we can open
@@ -211,6 +212,8 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
         CameraUtil.sharedInstance().closeCamera();
         RecordUtil.sharedInstance().saveCurrentRecord();
         BusNotificationUtil.sharedInstance().getBus().unregister(this);
+        //MessageUtil.sharedInstance().setRecording("N");
+        BLTManager.sharedInstance().sendMessge("");
     }
 
     /**
@@ -473,7 +476,7 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
             Log.i(TAG, "Start recording called");
             mStartedRecordingTime = new Date().getTime();
             mRecording = true;
-           // MessageUtil.sharedInstance().setRecording(true);
+           MessageUtil.sharedInstance().setRecording("R");
             scheduleNextFrame();
         } else {
             Log.i(TAG, "Start recording called but already recording");
@@ -488,15 +491,8 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
         if (mRecording) {
             Log.i(TAG, "Stop recording called");
             MessageUtil.sharedInstance().setRecording("N");
-            BLTManager.sharedInstance().sendMessge("");
+            //BLTManager.sharedInstance().sendMessge("");
             mRecording = false;
-//            if (BLTManager.sharedInstance().getState() == 3) {
-//                BLTManager.sharedInstance().sendMessge("NOTRECORDING,");
-//            }
-            //MessageUtil.sharedInstance().setRecording(true);
-            //BLTManager.sharedInstance().sendMessage("NOTRECORDING,");
-            //BLTManager.sharedInstance().setRecording(false);
-            //TcpConnection.getSharedInstance().setRecording(false);
         } else {
             Log.i(TAG, "Stop recording called but already recording");
         }

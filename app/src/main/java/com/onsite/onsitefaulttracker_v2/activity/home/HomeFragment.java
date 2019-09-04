@@ -198,6 +198,7 @@ public class HomeFragment extends BaseFragment {
                 mBluetooth = false;
             }
             enableBluetooth();
+            requestPhonePermission();
             setBTName();
         }
         return view;
@@ -267,7 +268,7 @@ public class HomeFragment extends BaseFragment {
         if (BLTManager.sharedInstance().getState() == STATE_NOTCONNECTED) {
             mContinueRecordButton.setEnabled(true);
         } else {
-
+            mContinueRecordButton.setEnabled(false);
         }
 
 //            mContinueRecordButton.setText();
