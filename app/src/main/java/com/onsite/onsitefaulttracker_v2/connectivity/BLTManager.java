@@ -388,8 +388,8 @@ public class BLTManager {
 
                 try {
                     mWriterOut = new PrintWriter(mSocket.getOutputStream(), true);
-                    sendMessge(SettingsUtil.sharedInstance().getCameraId() +
-                            SettingsUtil.sharedInstance().getCameraOri() + "CONNECTED");
+                    //sendMessge("CAMERA" + SettingsUtil.sharedInstance().getCameraId() +
+                            //SettingsUtil.sharedInstance().getCameraOri() + "CONNECTED");
                     setState(STATE_CONNECTED);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -451,6 +451,9 @@ public class BLTManager {
                         } else if (line.contains("Stop")) {
                             BusNotificationUtil.sharedInstance()
                                     .postNotification(new BLTStopRecordingEvent());
+                        } else if (line.contains("ACK")) {
+                            sendMessge("CAMERA" + SettingsUtil.sharedInstance().getCameraId() +
+                                    SettingsUtil.sharedInstance().getCameraOri() + "CONNECTED");
                         } else if (line.contains("Time")) {
                             String[] time = line.split(":");
                             int year = Integer.valueOf(time[1]);
