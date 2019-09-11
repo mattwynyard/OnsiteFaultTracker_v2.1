@@ -212,8 +212,9 @@ public class RecordFragment extends BaseFragment implements CameraUtil.CameraCon
         CameraUtil.sharedInstance().closeCamera();
         RecordUtil.sharedInstance().saveCurrentRecord();
         BusNotificationUtil.sharedInstance().getBus().unregister(this);
-        //MessageUtil.sharedInstance().setRecording("N");
-        BLTManager.sharedInstance().sendMessge("");
+        if (BLTManager.sharedInstance().getState() == 3) {
+            BLTManager.sharedInstance().sendMessge("");
+        }
     }
 
     /**

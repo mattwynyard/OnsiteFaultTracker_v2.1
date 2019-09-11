@@ -168,7 +168,7 @@ public class SubmitFragment extends BaseFragment implements Compressor.Compresso
      * Update the ui with the record details
      */
     private void updateUIValues() {
-        mRecord.totalSizeKB = (totalBytes) /1024;
+        //mRecord.totalSizeKB = (totalBytes) /1024;
         mNameTextView.setText(mRecord.recordName);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy, h:mm a");
         mDateTextView.setText(String.format(getString(R.string.submit_created_date), simpleDateFormat.format(mRecord.creationDate)));

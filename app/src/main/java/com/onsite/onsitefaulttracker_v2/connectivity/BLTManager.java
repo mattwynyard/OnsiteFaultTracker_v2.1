@@ -364,12 +364,13 @@ public class BLTManager {
 
         public void run() {
             // Cancel discovery because it otherwise slows down the connection.
-            mBluetoothAdapter.cancelDiscovery();
+
 
             try {
                 // Connect to the remote device through the socket. This call blocks
                 // until it succeeds or throws an exception.
                 mSocket.connect();
+                mBluetoothAdapter.cancelDiscovery();
                 Log.e(TAG, "Connected to server");
             } catch (IOException connectException) {
                 // Unable to connect; close the socket and return.

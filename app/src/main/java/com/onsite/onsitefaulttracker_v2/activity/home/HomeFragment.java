@@ -187,19 +187,16 @@ public class HomeFragment extends BaseFragment {
 
             mAppVersion = (TextView) view.findViewById(R.id.app_version_text_view);
             initAppVersionText();
-            if(!hasPermissions(mContext, PERMISSIONS)) {
+            if(!hasPermissions(getActivity(), PERMISSIONS)) {
                 ActivityCompat.requestPermissions(getActivity(), PERMISSIONS, PERMISSION_ALL);
+
             }
-            if (SettingsUtil.sharedInstance().getBluetooth().equals("YES")) {
-                mBluetooth = true;
-                mContinueRecordButton.setText("CONNECT");
-            } else {
-                //mContinueRecordButton.setText("CONNECT");
-                mBluetooth = false;
-            }
+
             enableBluetooth();
-            requestPhonePermission();
-            setBTName();
+            if (requestPhonePermission()) {
+                setBTName();
+            }
+
         }
         return view;
     }
@@ -254,6 +251,13 @@ public class HomeFragment extends BaseFragment {
      * Update the state of the buttons
      */
     private void updateButtonStates() {
+        if (SettingsUtil.sharedInstance().getBluetooth().equals("YES")) {
+            mBluetooth = true;
+            //
+        } else {
+            //mContinueRecordButton.setText("CONTINUE");
+            mBluetooth = false;
+        }
         boolean hasCurrentRecord = RecordUtil.sharedInstance().getCurrentRecord() != null;
         boolean hasRecords = RecordUtil.sharedInstance().getCurrentRecordCount() > 0;
 
@@ -265,14 +269,18 @@ public class HomeFragment extends BaseFragment {
         } else {
             mNewRecordButton.setEnabled(true);
         }
-        if (BLTManager.sharedInstance().getState() == STATE_NOTCONNECTED) {
-            mContinueRecordButton.setEnabled(true);
+        if (mBluetooth) {
+            mContinueRecordButton.setText("CONNECT");
+            if (BLTManager.sharedInstance().getState() == STATE_NOTCONNECTED) {
+                mContinueRecordButton.setEnabled(hasCurrentRecord);
+            } else {
+                mContinueRecordButton.setEnabled(false);
+            }
         } else {
-            mContinueRecordButton.setEnabled(false);
+            mContinueRecordButton.setEnabled(hasCurrentRecord);
+            mContinueRecordButton.setText("CONTINUE");
         }
 
-//            mContinueRecordButton.setText();
-//        }
         updateCurrentRecordText();
     }
 
@@ -334,7 +342,6 @@ public class HomeFragment extends BaseFragment {
                 == PackageManager.PERMISSION_GRANTED) {
             mSerialNumber = Build.getSerial();
             Log.d(TAG, "Serial number: " + mSerialNumber);
-
             return true;
 
         } else {
@@ -350,7 +357,7 @@ public class HomeFragment extends BaseFragment {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         Log.d(TAG, "Request called");
         switch (requestCode) {
-            case READ_PHONE_STATE_REQUEST_CODE:
+            case PERMISSION_ALL:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // All good!
                     if (getActivity().checkSelfPermission(Manifest.permission.READ_PHONE_STATE)
@@ -533,10 +540,10 @@ public class HomeFragment extends BaseFragment {
      * Check for existing records
      */
     private void checkForExistingRecords() {
-//        if (RecordUtil.sharedInstance().checkRecordExistsForToday()) {
-//            new AlertDialog.Builder(getActivity())
-//                    .setTitle(getString(R.string.record_exists_title))
-//                    .setMessage(getString(R.string.record_exists_message))
+        if (RecordUtil.sharedInstance().checkRecordExistsForToday()) {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(getString(R.string.record_exists_title))
+                    .setMessage(getString(R.string.record_exists_message))
 //                    .setPositiveButton(getString(R.string.record_exists_resume_current), new DialogInterface.OnClickListener() {
 //                        @Override
 //                        public void onClick(DialogInterface dialog, int which) {
@@ -545,25 +552,29 @@ public class HomeFragment extends BaseFragment {
 //                            }
 //                        }
 //                    })
-//                    .setNegativeButton(getString(R.string.record_exists_new_record), new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            requestRecordName();
-//                        }
-//                    })
-//                    .show();
-        if (RecordUtil.sharedInstance().checkRecordExistsForToday()) {
-            if (bluetooth) {
-                if (mListener != null) {
-                    updateButtonStates();
-                    mListener.onNewRecord();
-                }
-            } else {
-                updateButtonStates();
-            }
+                    .setNegativeButton(getString(R.string.record_exists_new_record), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            requestRecordName();
+                        }
+                    })
+                    .show();
         } else {
             requestRecordName();
+//
         }
+//        if (RecordUtil.sharedInstance().checkRecordExistsForToday()) {
+//            //if (mBluetooth) {
+//                //if (mListener != null) {
+//                    //updateButtonStates();
+//                    //mListener.onNewRecord();
+//                //}
+//            //} else {
+//                updateButtonStates();
+//            //}
+//        } else {
+//            requestRecordName();
+//        }
     }
 
     /**

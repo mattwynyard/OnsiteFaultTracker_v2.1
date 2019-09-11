@@ -232,8 +232,17 @@ public class BitmapSaveUtil {
                             BigDecimal.ROUND_HALF_UP).doubleValue();
                     final long frequency = SettingsUtil.sharedInstance().getPictureFrequency();
                     //photo.size();
-                    final String latitude = Double.toString(location.getLatitude());
-                    final String longitude = Double.toString(location.getLongitude());
+                    final String latitude;
+                    final String longitude;
+                    if (location != null) {
+                        latitude = Double.toString(location.getLatitude());
+                        longitude = Double.toString(location.getLongitude());
+                    } else {
+                        latitude = Double.toString(0);
+                        longitude = Double.toString(0);
+
+                    }
+
                     //Log.d(TAG, "longitude: " + longitude);
                     task1 = new Runnable() {
                         @Override

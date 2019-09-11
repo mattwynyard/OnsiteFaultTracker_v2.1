@@ -61,10 +61,8 @@ public class GPSUtil implements LocationListener {
 
     // flag for GPS status
     public boolean isGPSEnabled = false;
-
     private LocationManager mLocationManager;
     private Location mLocation;
-    //private LocationListener mLocationListener;
     private double latitude; // latitude
     private double longitude; // longitude
 
@@ -138,48 +136,6 @@ public class GPSUtil implements LocationListener {
         };
     }
 
-    LocationListener mLocationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            //Log.v("Listener: ", "Location changed");
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-            if (mLocationManager != null) {
-                if (ActivityCompat.checkSelfPermission( mContext, Manifest.permission
-                        .ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat
-                        .checkSelfPermission( mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            } else {
-                //Log.d(TAG, "Location Manager Null");
-            }
-            Log.d(TAG, "Latitude: " + latitude);
-            Log.d(TAG, "Longitude: " + longitude);
-            mLocation = location;
-
-        }
-
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-
-        }
-    };
-
-
-
     public int getSatellites() {
         return mSatellites;
     }
@@ -206,7 +162,7 @@ public class GPSUtil implements LocationListener {
             mLocationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER,
                     MIN_TIME_BW_UPDATES,
-                    MIN_DISTANCE_CHANGE_FOR_UPDATES, mLocationListener);
+                    MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
         }
 
         GnssMeasurementsEvent.Callback gnssMeasurementsCallback = new GnssMeasurementsEvent.Callback() {
@@ -299,8 +255,6 @@ public class GPSUtil implements LocationListener {
             return;
         }
         mLocationManager.registerGnssStatusCallback(gnssStatusCallBack);
-        //mLocationManager.registerGnssNavigationMessageCallback(gnssMessageCallback);
-        //mLocationManager.registerGnssMeasurementsCallback(gnssMeasurementsCallback);
     }
 
     public boolean getStatus() {
@@ -310,15 +264,18 @@ public class GPSUtil implements LocationListener {
     public Location getLocation() {
         if (isGPSEnabled) {
             if (mLocation != null) {
+                return mLocation;
             } else {
                 Log.d(TAG, "Location Null");
-                mLocation = new Location(LocationManager.GPS_PROVIDER);
+                //mLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                return new Location(LocationManager.GPS_PROVIDER);
             }
         } else {
             Log.d(TAG, "GPS not enabled");
+            return new Location(LocationManager.GPS_PROVIDER);
 
         }
-        return mLocation;
+
     }
 
 
@@ -340,7 +297,7 @@ public class GPSUtil implements LocationListener {
                         Manifest.permission.ACCESS_COARSE_LOCATION) ==
                         PackageManager.PERMISSION_GRANTED) {
             if (mLocationManager != null) {
-                mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                mLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             } else {
                 Log.d(TAG, "Location Manager Null");
             }
