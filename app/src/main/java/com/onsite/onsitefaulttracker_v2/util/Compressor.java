@@ -1,10 +1,17 @@
 package com.onsite.onsitefaulttracker_v2.util;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.os.Environment;
 import android.util.Log;
+
+import com.onsite.onsitefaulttracker_v2.R;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -15,6 +22,7 @@ public class Compressor {
     private String[] _files;
     private String _zipFile;
     private CompressorListener mCompressorListener;
+    private FileOutputStream mDest;
 
     /**
      * Interface for communicating with the parent fragment/activity
@@ -32,22 +40,21 @@ public class Compressor {
         mCompressorListener = listener;
     }
 
-    public Compressor(String[] files, String zipFile) {
+    public Compressor(String[] files, FileOutputStream dest) {
         _files = files;
-        _zipFile = zipFile;
+        //_zipFile = zipFile;
+        mDest = dest;
     }
 
     public void zip() {
         long _size;
-        //long totalBytes = 0;
         try  {
             BufferedInputStream origin = null;
-            FileOutputStream dest = new FileOutputStream(_zipFile);
-            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
+            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(mDest));
             byte data[] = new byte[BUFFER];
 
             for(int i=0; i < _files.length; i++) {
-                Log.v("Compress", "Adding: " + _files[i]);
+                Log.d("Compress", "Adding: " + _files[i]);
                 _size = new File(_files[i]).length();
                 //totalBytes += _size;
                 FileInputStream fi = new FileInputStream(_files[i]);
@@ -66,7 +73,6 @@ public class Compressor {
         } catch(Exception e) {
             e.printStackTrace();
         }
-
     }
 
 }

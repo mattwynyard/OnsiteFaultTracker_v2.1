@@ -24,6 +24,8 @@ import com.onsite.onsitefaulttracker_v2.util.RecordUtil;
 import com.onsite.onsitefaulttracker_v2.util.ThreadUtil;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 
 /**
@@ -223,6 +225,28 @@ public class SubmitFragment extends BaseFragment implements Compressor.Compresso
         RecordUtil.sharedInstance().saveRecord(mRecord);
     }
 
+
+    /**
+     * Checks if the zip file exists. If zip file already exists it adds a count to the end to
+     * the file name to avoid overwriting existing file
+     * @param path - the path of the new zip file
+     * @param baseFolder - the folder to write zip file to
+     * @return - the new file path to write zip file too
+     */
+    private int checkFileExists(String path, String baseFolder) {
+        File f = new File(path);
+        File base = new File(baseFolder);
+        //SimpleDateFormat dateFormat = new SimpleDateFormat(OUT_RECORD_DATE_FORMAT);
+        //final String dateString = dateFormat.format(mRecord.creationDate);
+        if (f.exists()) {
+            File[] files = base.listFiles();
+            int count = files.length;
+
+            return ++count;
+        } else {
+            return 0;
+        }
+    }
     /**
      * Action when the user clicks on submit,  initiate the dropbox api
      * and start uploading the record
@@ -242,14 +266,44 @@ public class SubmitFragment extends BaseFragment implements Compressor.Compresso
         SimpleDateFormat dateFormat = new SimpleDateFormat(OUT_RECORD_DATE_FORMAT);
         final String dateString = dateFormat.format(mRecord.creationDate);
         String outPath;
+        String storage;
+        String baseFolder;
+        int count;
         if (RecordUtil.sharedInstance().checkSDCard()) {
-            outPath = RecordUtil.sharedInstance().getBaseFolder(true)
-                    .getAbsolutePath() + "/onsite_record_" + dateString + ".zip";
+            baseFolder = RecordUtil.sharedInstance().getBaseFolder(true)
+                    .getAbsolutePath();
+            storage = "SD Card";
+
         } else {
-            outPath = RecordUtil.sharedInstance().getBaseFolder()
-                    .getAbsolutePath() + "/onsite_record_" + dateString + ".zip";
+            baseFolder = RecordUtil.sharedInstance().getBaseFolder()
+                    .getAbsolutePath();
+            storage = "Phone";
         }
-        final Compressor compressor = new Compressor(fileNames, outPath);
+
+        outPath = baseFolder + "/onsite_record_" + dateString + ".zip";
+        count = checkFileExists(outPath, baseFolder);
+        if (count > 0) {
+            outPath = baseFolder + "/onsite_record_" + dateString + "_" + count + ".zip";
+        }
+
+        FileOutputStream dest = null;
+        try {
+            dest = new FileOutputStream(outPath);
+        } catch (FileNotFoundException e) {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Zip Error")
+                    .setMessage("Destination folder does not exist on the " + storage +
+                            ". Please create a destination folder" )
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                    .show();
+            return;
+        }
+        final Compressor compressor = new Compressor(fileNames, dest);
         compressor.setCompressorListener(this);
 
         mSubmittingProgressBar.setVisibility(View.VISIBLE);

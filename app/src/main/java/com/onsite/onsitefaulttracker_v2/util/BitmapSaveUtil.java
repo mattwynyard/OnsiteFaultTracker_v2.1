@@ -337,7 +337,7 @@ public class BitmapSaveUtil {
         messageString.append(saveTime + "|");
         messageString.append(frequency + "|");
         //messageString.append(SettingsUtil.sharedInstance().getCameraOri() + "|");
-        messageString.append(jpegBytes + ",");
+        //messageString.append(jpegBytes + ",");
         String message = messageString.toString();
         Log.d(TAG, "String builder path: " +  message);
         return message;

@@ -515,9 +515,9 @@ public class HomeFragment extends BaseFragment {
                         .setPositiveButton(getString(R.string.continue_anyway), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                mListener.onNewRecord();
                                 if (mListener != null) {
-                                    mListener.onNewRecord();
-                                }
+                               }
                             }
                         })
                         .setNegativeButton(getString(R.string.cancel), null)
